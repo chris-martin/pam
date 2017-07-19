@@ -4,6 +4,12 @@ module System.Posix.PAM.Types where
 import Foreign.C
 import Foreign.Ptr
 
+{- |
+
+Used to pass prompting text, error messages, or other informatory text to the
+user.
+
+-}
 data PamMessage = PamMessage { pmString :: String
                              , pmStyle :: PamStyle
                              }
@@ -15,8 +21,15 @@ data PamStyle = PamPromptEchoOff
               | PamTextInfo
               deriving (Show, Eq)
 
-{- | http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/adg-interface-of-app-expected.html#adg-pam_conv
- - resp_code member in C sturct is unused and should be set to zero, that's why there is no code field in the haskell data type
+{- |
+
+Used to return the user's response to the PAM library.
+
+http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/adg-interface-of-app-expected.html#adg-pam_conv
+
+The @resp_retcode@ member of the C struct is unused, so we do not bother
+including a corresponding field in this Haskell type.
+
  -}
 data PamResponse = PamResponse String
                  deriving (Show, Eq)

@@ -9,6 +9,14 @@ import Foreign.Storable
 #include <security/pam_appl.h>
 #include <security/pam_misc.h>
 
+{- |
+
+Used to pass prompting text, error messages, or other informatory text to the
+user.
+
+/This structure is allocated and freed by the PAM library (or loaded module)./
+
+-}
 data CPamMessage = CPamMessage { msg_style :: CInt
                                , msg :: CString
                                }
@@ -23,10 +31,19 @@ instance Storable CPamMessage where
         {#set pam_message.msg_style #} p ms
         {#set pam_message.msg #} p m
 
-data CPamResponse = CPamResponse { resp :: CString
-                                 , resp_retcode :: CInt
-                                 }
-                                 deriving (Show,Eq)
+{- |
+
+Used to return the user's response to the PAM library.
+
+/This structure is allocated by the application program, and it is free()'d by/
+/the Linux-PAM library (or calling module)./
+
+-}
+data CPamResponse = CPamResponse
+    { resp :: CString
+    , resp_retcode :: CInt -- ^ currently un-used, zero expected
+    }
+    deriving (Show,Eq)
 
 instance Storable CPamResponse where
     alignment _ = alignment (undefined :: CDouble)
@@ -37,6 +54,11 @@ instance Storable CPamResponse where
         {#set pam_response.resp #} p r
         {#set pam_response.resp_retcode #} p rc
 
+{- |
+
+The actual conversation structure itself.
+
+-}
 data CPamConv = CPamConv { conv :: FunPtr (CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt)
                          , appdata_ptr :: Ptr ()
                          }
