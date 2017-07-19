@@ -76,6 +76,11 @@ instance Storable CPamConv where
         {#set pam_conv.conv #} p c
         {#set pam_conv.appdata_ptr #} p ap
 
+{- |
+
+An opaque handle to PAM, obtained using 'c_pam_start'.
+
+-}
 type CPamHandle = Ptr ()
 
 foreign import ccall "security/pam_appl.h pam_start" c_pam_start :: CString -> CString -> Ptr CPamConv -> Ptr CPamHandle -> IO CInt
