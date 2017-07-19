@@ -12,7 +12,6 @@ module System.Posix.PAM.Internals
   , PamAuthenticateFlags
   , c_pam_acct_mgmt
   , PamAcctMgmtFlags
-  , c_misc_conv
   ) where
 
 import Control.Applicative
@@ -171,6 +170,3 @@ The binary /or/ of zero or more of the following values:
 
 -}
 type PamAcctMgmtFlags = CInt
-
-foreign import ccall "security/pam_misc.h misc_conv" c_misc_conv
-  :: CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt

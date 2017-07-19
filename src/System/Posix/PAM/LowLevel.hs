@@ -79,9 +79,6 @@ pamStart serviceName userName (pamConv, appData) = do
     -- create FunPtr pointer to function and embedd PamConv function into cConv
     pamConvPtr <- mkconvFunc $ cConv pamConv
 
-    -- c_misc_conv is example conversation function from pam library
-    -- pamConvPtr <- mkconvFunc c_misc_conv
-
     let conv = CPamConv pamConvPtr appData
 
     convPtr <- malloc
