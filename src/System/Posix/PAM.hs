@@ -12,7 +12,11 @@ import Foreign.Ptr
 import System.Posix.PAM.LowLevel
 import System.Posix.PAM.Types
 
-authenticate :: String -> String -> String -> IO (Either Int ())
+authenticate
+  :: String -- ^ Service name
+  -> String -- ^ User name
+  -> String -- ^ Password
+  -> IO (Either Int ())
 authenticate serviceName userName password = do
     let custConv :: String -> PamConv
         custConv pass _ messages = do
