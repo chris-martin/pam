@@ -78,13 +78,36 @@ instance Storable CPamConv where
 
 {- |
 
-An opaque handle to PAM, obtained using 'c_pam_start'.
+An opaque handle to a PAM session, obtained using 'c_pam_start' and freed using
+'c_pam_end'.
+
+/You must use a different 'CPamHandle' for each transaction./
 
 -}
 type CPamHandle = Ptr ()
 
+{- |
+
+Creates a 'CPamHandle' and initiates a PAM transaction. This is always the first
+thing you need to do to use PAM.
+
+/Make sure you call 'pam_end' once the transaction is over./
+
+-}
 foreign import ccall "security/pam_appl.h pam_start" c_pam_start :: CString -> CString -> Ptr CPamConv -> Ptr CPamHandle -> IO CInt
+
+{- |
+
+Terminates a PAM transaction.
+
+/The 'CPamHandle' will become invalid, so this is the last thing you should do/
+/with it./
+
+-}
 foreign import ccall "security/pam_appl.h pam_end" c_pam_end :: CPamHandle -> CInt -> IO CInt
+
 foreign import ccall "security/pam_appl.h pam_authenticate" c_pam_authenticate :: CPamHandle -> CInt -> IO CInt
+
 foreign import ccall "security/pam_appl.h pam_acct_mgmt" c_pam_acct_mgmt :: CPamHandle -> CInt -> IO CInt
+
 foreign import ccall "security/pam_misc.h misc_conv" c_misc_conv :: CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt
