@@ -1,4 +1,3 @@
-
 module System.Posix.PAM.Types where
 
 import Foreign.C

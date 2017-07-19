@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP, ForeignFunctionInterface #-}
+
 module System.Posix.PAM.Internals
   (
   -- * PAM session management

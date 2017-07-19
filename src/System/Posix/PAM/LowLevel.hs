@@ -1,4 +1,3 @@
-
 module System.Posix.PAM.LowLevel where
 
 import Foreign.C
