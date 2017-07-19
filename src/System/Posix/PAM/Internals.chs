@@ -1,5 +1,19 @@
 {-# LANGUAGE CPP, ForeignFunctionInterface #-}
-module System.Posix.PAM.Internals where
+module System.Posix.PAM.Internals
+  ( CPamMessage (..)
+  , CPamResponse (..)
+  , CPamConv (..)
+  , ConvFunc
+  , mkconvFunc
+  , CPamHandle
+  , c_pam_start
+  , c_pam_end
+  , c_pam_authenticate
+  , PamAuthenticateFlags
+  , c_pam_acct_mgmt
+  , PamAcctMgmtFlags
+  , c_misc_conv
+  ) where
 
 import Control.Applicative
 import Foreign.C
