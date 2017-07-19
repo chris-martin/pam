@@ -1,17 +1,26 @@
 {-# LANGUAGE CPP, ForeignFunctionInterface #-}
 module System.Posix.PAM.Internals
-  ( CPamMessage (..)
+  (
+  -- * PAM session management
+    CPamHandle
+  , c_pam_start
+  , c_pam_end
+
+  -- * Conversation protocol
+  , CPamMessage (..)
   , CPamResponse (..)
   , CPamConv (..)
   , ConvFunc
   , mkconvFunc
-  , CPamHandle
-  , c_pam_start
-  , c_pam_end
+
+  -- * Authenticating a user
   , c_pam_authenticate
   , PamAuthenticateFlags
+
+  -- * Checking if the authenticated user is valid
   , c_pam_acct_mgmt
   , PamAcctMgmtFlags
+
   ) where
 
 import Control.Applicative
