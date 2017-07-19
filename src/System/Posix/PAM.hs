@@ -24,16 +24,16 @@ authenticate serviceName userName password = do
             return rs
     (pamH, r1) <- pamStart serviceName userName (custConv password, nullPtr)
     case r1 of
-        PamRetCode code -> return $ Left $ fromInteger $ toInteger code
+        PamRetCode code -> return $ Left $ fromIntegral code
         PamSuccess -> do
             r2 <- pamAuthenticate pamH (PamFlag 0)
             case r2 of
-                PamRetCode code -> return $ Left $ fromInteger $ toInteger code
+                PamRetCode code -> return $ Left $ fromIntegral code
                 PamSuccess -> do
                     r3 <- pamEnd pamH r2
                     case r3 of
                         PamSuccess -> return $ Right ()
-                        PamRetCode code -> return $ Left $ fromInteger $ toInteger code
+                        PamRetCode code -> return $ Left $ fromIntegral code
 
 pamCodeToMessage :: Int -> String
 pamCodeToMessage = snd . pamCodeDetails

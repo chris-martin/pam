@@ -11,11 +11,11 @@ import System.Posix.PAM.Internals hiding (resp, conv)
 retCodeFromC :: CInt -> PamRetCode
 retCodeFromC rc = case rc of
             0 -> PamSuccess
-            a -> PamRetCode $ fromInteger $ toInteger a
+            a -> PamRetCode $ fromIntegral a
 
 retCodeToC :: PamRetCode -> CInt
 retCodeToC PamSuccess = 0
-retCodeToC (PamRetCode a) = fromInteger $ toInteger a
+retCodeToC (PamRetCode a) = fromIntegral a
 
 responseToC :: PamResponse -> IO CPamResponse
 responseToC (PamResponse resp) = do
@@ -46,7 +46,7 @@ cConv customConv num mesArrPtr respArrPtr appData =
             let mesArr = castPtr voidArr :: Ptr CPamMessage
 
             -- peek message list from array
-            cMessages <- peekArray (fromInteger $ toInteger num) mesArr
+            cMessages <- peekArray (fromIntegral num) mesArr
 
             -- convert messages into high-level types
             messages <- mapM messageFromC cMessages
@@ -58,7 +58,7 @@ cConv customConv num mesArrPtr respArrPtr appData =
             cResponses <- mapM responseToC responses
 
             -- alloc memory for response array
-            respArr <- mallocArray (fromInteger $ toInteger num)
+            respArr <- mallocArray (fromIntegral num)
 
             -- poke resonse list into array
             pokeArray respArr cResponses
@@ -92,7 +92,7 @@ pamStart serviceName userName (pamConv, appData) = do
 
     let retCode = case r1 of
             0 -> PamSuccess
-            a -> PamRetCode $ fromInteger $ toInteger a
+            a -> PamRetCode $ fromIntegral a
 
     free cServiceName
     free cUserName
@@ -106,7 +106,7 @@ pamEnd :: PamHandle -> PamRetCode -> IO PamRetCode
 pamEnd pamHandle inRetCode = do
     let cRetCode = case inRetCode of
             PamSuccess -> 0
-            PamRetCode a -> fromInteger $ toInteger a
+            PamRetCode a -> fromIntegral a
     r <- c_pam_end (cPamHandle pamHandle) cRetCode
     freeHaskellFunPtr $ cPamCallback pamHandle
 
@@ -114,12 +114,12 @@ pamEnd pamHandle inRetCode = do
 
 pamAuthenticate :: PamHandle -> PamFlag -> IO PamRetCode
 pamAuthenticate pamHandle (PamFlag flag) = do
-    let cFlag = fromInteger $ toInteger flag
+    let cFlag = fromIntegral flag
     r <- c_pam_authenticate (cPamHandle pamHandle) cFlag
     return $ retCodeFromC r
 
 pamAcctMgmt :: PamHandle -> PamFlag -> IO PamRetCode
 pamAcctMgmt pamHandle (PamFlag flag) = do
-    let cFlag = fromInteger $ toInteger flag
+    let cFlag = fromIntegral flag
     r <- c_pam_acct_mgmt (cPamHandle pamHandle) cFlag
     return $ retCodeFromC r
