@@ -8,7 +8,9 @@ Copyright:      Copyright (c) 2011-2012 Evgeny Tarasov
 Maintainer:     etarasov.ekb@gmail.com
 Stability:      alpha
 Synopsis:       Haskell binding for C PAM API
-Description:    This package provides PAM interface for Haskell programs. It contains subset of C PAM API bindings. The bindings don't include functions for writing PAM modules.
+Description:    This package provides PAM interface for Haskell programs.
+                It contains subset of C PAM API bindings. The bindings don't
+                include functions for writing PAM modules.
 Category:       System
 Homepage:       https://github.com/etarasov/pam/
 Tested-with:    GHC==6.12.3
