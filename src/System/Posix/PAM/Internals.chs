@@ -76,10 +76,10 @@ instance Storable CPamConv where
         {#set pam_conv.conv #} p c
         {#set pam_conv.appdata_ptr #} p ap
 
-type CPamHandleT = ()
+type CPamHandle = Ptr ()
 
-foreign import ccall "security/pam_appl.h pam_start" c_pam_start :: CString -> CString -> Ptr CPamConv -> Ptr (Ptr CPamHandleT) -> IO CInt
-foreign import ccall "security/pam_appl.h pam_end" c_pam_end :: Ptr CPamHandleT -> CInt -> IO CInt
-foreign import ccall "security/pam_appl.h pam_authenticate" c_pam_authenticate :: Ptr CPamHandleT -> CInt -> IO CInt
-foreign import ccall "security/pam_appl.h pam_acct_mgmt" c_pam_acct_mgmt :: Ptr CPamHandleT -> CInt -> IO CInt
+foreign import ccall "security/pam_appl.h pam_start" c_pam_start :: CString -> CString -> Ptr CPamConv -> Ptr CPamHandle -> IO CInt
+foreign import ccall "security/pam_appl.h pam_end" c_pam_end :: CPamHandle -> CInt -> IO CInt
+foreign import ccall "security/pam_appl.h pam_authenticate" c_pam_authenticate :: CPamHandle -> CInt -> IO CInt
+foreign import ccall "security/pam_appl.h pam_acct_mgmt" c_pam_acct_mgmt :: CPamHandle -> CInt -> IO CInt
 foreign import ccall "security/pam_misc.h misc_conv" c_misc_conv :: CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt
