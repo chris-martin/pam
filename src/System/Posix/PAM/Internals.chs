@@ -94,7 +94,8 @@ thing you need to do to use PAM.
 /Make sure you call 'pam_end' once the transaction is over./
 
 -}
-foreign import ccall "security/pam_appl.h pam_start" c_pam_start :: CString -> CString -> Ptr CPamConv -> Ptr CPamHandle -> IO CInt
+foreign import ccall "security/pam_appl.h pam_start" c_pam_start
+  :: CString -> CString -> Ptr CPamConv -> Ptr CPamHandle -> IO CInt
 
 {- |
 
@@ -104,7 +105,8 @@ Terminates a PAM transaction.
 /with it./
 
 -}
-foreign import ccall "security/pam_appl.h pam_end" c_pam_end :: CPamHandle -> CInt -> IO CInt
+foreign import ccall "security/pam_appl.h pam_end" c_pam_end
+  :: CPamHandle -> CInt -> IO CInt
 
 {- |
 
@@ -132,6 +134,29 @@ The binary /or/ of zero or more of the following values:
 -}
 type PamAuthenticateFlags = CInt
 
-foreign import ccall "security/pam_appl.h pam_acct_mgmt" c_pam_acct_mgmt :: CPamHandle -> CInt -> IO CInt
+{- |
 
-foreign import ccall "security/pam_misc.h misc_conv" c_misc_conv :: CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt
+Used to determine if the user's account is valid. It checks for authentication
+token and account expiration and verifies access restrictions. This is typically
+called after the user has been authenticated.
+
+-}
+foreign import ccall "security/pam_appl.h pam_acct_mgmt" c_pam_acct_mgmt
+  :: CPamHandle -- ^ A PAM handle obtained by a prior call to 'c_pam_start'.
+  -> PamAcctMgmtFlags
+  -> IO CInt
+
+{- |
+
+The binary /or/ of zero or more of the following values:
+
+- @PAM_SILENT@ - Do not emit any messages.
+
+- @PAM_DISALLOW_NULL_AUTHTOK@ - The PAM module service should return
+  @PAM_AUTH_ERR@ if the user does not have a registered authentication token.
+
+-}
+type PamAcctMgmtFlags = CInt
+
+foreign import ccall "security/pam_misc.h misc_conv" c_misc_conv
+  :: CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt
