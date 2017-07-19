@@ -23,8 +23,6 @@ Library
                      System.Posix.PAM.Types
                      System.Posix.PAM.Internals
 
-    extensions: ForeignFunctionInterface
-
     Build-Depends:  base >= 4 && < 5
     Hs-Source-Dirs: src
     Ghc-options:    -Wall
