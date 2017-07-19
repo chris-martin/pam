@@ -35,10 +35,6 @@ authenticate serviceName userName password = do
                         PamSuccess -> return $ Right ()
                         PamRetCode code -> return $ Left $ fromInteger $ toInteger code
 
-checkAccount :: String -> String -> IO (Either Int ())
-checkAccount = undefined
-
-
 pamCodeToMessage :: Int -> String
 pamCodeToMessage = snd . pamCodeDetails
 
