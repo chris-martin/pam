@@ -29,7 +29,6 @@ import Foreign.Ptr
 import Foreign.Storable
 
 #include <security/pam_appl.h>
-#include <security/pam_misc.h>
 
 {- |
 
