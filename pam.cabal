@@ -1,5 +1,14 @@
-Name:           pam
-Version:        0.1.1
+Name:    pam
+Version: 0.1.1
+
+Synopsis:
+  Haskell binding for C PAM API
+
+Description:
+  This package provides PAM interface for Haskell programs. It contains subset
+  of C PAM API bindings. The bindings don't include functions for writing PAM
+  modules.
+
 Cabal-Version:  >= 1.6
 Build-type:     Simple
 License:        BSD3
@@ -7,28 +16,27 @@ License-File:   LICENSE
 Copyright:      Copyright (c) 2011-2012 Evgeny Tarasov
 Maintainer:     etarasov.ekb@gmail.com
 Stability:      alpha
-Synopsis:       Haskell binding for C PAM API
-Description:    This package provides PAM interface for Haskell programs.
-                It contains subset of C PAM API bindings. The bindings don't
-                include functions for writing PAM modules.
 Category:       System
 Homepage:       https://github.com/etarasov/pam/
 Tested-with:    GHC==8.0.2
+
 Extra-source-files: Setup.hs
-Source-repository   head
-    type:   git
-    location: git://github.com/etarasov/pam.git
 
 Library
-    exposed-modules: System.Posix.PAM
-                     System.Posix.PAM.LowLevel
-                     System.Posix.PAM.Types
-                     System.Posix.PAM.Internals
+  exposed-modules:
+    System.Posix.PAM
+    System.Posix.PAM.LowLevel
+    System.Posix.PAM.Types
+    System.Posix.PAM.Internals
 
-    Build-Depends:  base >= 4 && < 5
-    Hs-Source-Dirs: src
-    Ghc-options:    -Wall
+  Build-Depends:  base >= 4 && < 5
+  Hs-Source-Dirs: src
+  Ghc-options:    -Wall
 
-    extra-libraries : pam, pam_misc
+  extra-libraries: pam, pam_misc
 
-    build-tools: c2hs
+  build-tools: c2hs
+
+Source-repository head
+  type:     git
+  location: git://github.com/etarasov/pam.git
