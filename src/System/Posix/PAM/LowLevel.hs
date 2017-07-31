@@ -1,5 +1,9 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module System.Posix.PAM.LowLevel where
 
+import Control.Monad.Except
+import Data.IORef
 import Foreign.C
 import Foreign.Marshal.Array
 import Foreign.Marshal.Alloc
@@ -9,13 +13,15 @@ import System.Posix.PAM.Types
 import System.Posix.PAM.Internals hiding (resp, conv)
 
 retCodeFromC :: CInt -> PamRetCode
-retCodeFromC rc = case rc of
-            0 -> PamSuccess
-            a -> PamRetCode $ fromIntegral a
+retCodeFromC rc =
+  PamRetCode (fromIntegral rc)
 
 retCodeToC :: PamRetCode -> CInt
-retCodeToC PamSuccess = 0
 retCodeToC (PamRetCode a) = fromIntegral a
+
+retCodeError :: PamRetCode -> Maybe PamErrorCode
+retCodeError (PamRetCode 0) = Nothing
+retCodeError (PamRetCode a) = Just (PamErrorCode a)
 
 responseToC :: PamResponse -> IO CPamResponse
 responseToC (PamResponse resp) = do
@@ -69,57 +75,73 @@ cConv customConv num mesArrPtr respArrPtr appData =
             -- return PAM_SUCCESS
             return 0
 
-
-pamStart :: String -> String -> (PamConv, Ptr ()) -> IO (PamHandle, PamRetCode)
+pamStart :: (MonadIO m, MonadError PamErrorCode m)
+  => String
+  -> String
+  -> (PamConv, Ptr ())
+  -> m PamHandle
 pamStart serviceName userName (pamConv, appData) = do
-    cServiceName <- newCString serviceName
-    cUserName <- newCString userName
+    cServiceName <- liftIO $ newCString serviceName
+    cUserName <- liftIO $ newCString userName
 
     -- create FunPtr pointer to function and embedd PamConv function into cConv
-    pamConvPtr <- mkconvFunc $ cConv pamConv
+    pamConvPtr <- liftIO $ mkconvFunc $ cConv pamConv
 
     let conv = CPamConv pamConvPtr appData
 
-    convPtr <- malloc
-    poke convPtr conv
+    convPtr <- liftIO $ malloc
+    liftIO $ poke convPtr conv
 
-    pamhPtr <- malloc
-    poke pamhPtr nullPtr
+    pamhPtr <- liftIO $ malloc
+    liftIO $ poke pamhPtr nullPtr
 
-    r1 <- c_pam_start cServiceName cUserName convPtr pamhPtr
+    r1 <- liftIO $ c_pam_start cServiceName cUserName convPtr pamhPtr
 
-    cPamHandle_ <- peek pamhPtr
+    cPamHandle_ <- liftIO $ peek pamhPtr
 
     let retCode = case r1 of
-            0 -> PamSuccess
             a -> PamRetCode $ fromIntegral a
 
-    free cServiceName
-    free cUserName
-    free convPtr
+    liftIO $ free cServiceName
+    liftIO $ free cUserName
+    liftIO $ free convPtr
 
-    free pamhPtr
+    liftIO $ free pamhPtr
 
-    return (PamHandle cPamHandle_ pamConvPtr, retCode)
+    case retCodeError retCode of
+      Nothing ->
+        PamHandle cPamHandle_ pamConvPtr <$> liftIO (newIORef retCode)
+      Just e -> throwError e
 
 pamEnd :: PamHandle -> PamRetCode -> IO PamRetCode
 pamEnd pamHandle inRetCode = do
     let cRetCode = case inRetCode of
-            PamSuccess -> 0
             PamRetCode a -> fromIntegral a
     r <- c_pam_end (cPamHandle pamHandle) cRetCode
     freeHaskellFunPtr $ cPamCallback pamHandle
 
     return $ retCodeFromC r
 
-pamAuthenticate :: PamHandle -> PamFlag -> IO PamRetCode
+pamAuthenticate :: (MonadIO m, MonadError PamErrorCode m)
+  => PamHandle -> PamFlag -> m ()
 pamAuthenticate pamHandle (PamFlag flag) = do
-    let cFlag = fromIntegral flag
-    r <- c_pam_authenticate (cPamHandle pamHandle) cFlag
-    return $ retCodeFromC r
+  r <- liftIO $ retCodeFromC <$> c_pam_authenticate (cPamHandle pamHandle)
+                                                    (fromIntegral flag)
+  setLastRetCode pamHandle r
+  case retCodeError r of
+    Nothing -> return ()
+    Just e -> throwError e
 
-pamAcctMgmt :: PamHandle -> PamFlag -> IO PamRetCode
+pamAcctMgmt :: (MonadIO m, MonadError PamErrorCode m)
+  => PamHandle -> PamFlag -> m ()
 pamAcctMgmt pamHandle (PamFlag flag) = do
-    let cFlag = fromIntegral flag
-    r <- c_pam_acct_mgmt (cPamHandle pamHandle) cFlag
-    return $ retCodeFromC r
+  r <- liftIO $ retCodeFromC <$> c_pam_acct_mgmt (cPamHandle pamHandle)
+                                                 (fromIntegral flag)
+  setLastRetCode pamHandle r
+  case retCodeError r of
+    Nothing -> return ()
+    Just e -> throwError e
+
+setLastRetCode :: MonadIO m => PamHandle -> PamRetCode -> m ()
+setLastRetCode pamHandle r =
+  liftIO $ writeIORef (lastPamStatusRef pamHandle) r

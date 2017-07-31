@@ -6,34 +6,38 @@ http://www.linux-pam.org/Linux-PAM-html/Linux-PAM_ADG.html
 
 -}
 
+{-# LANGUAGE FlexibleContexts, ScopedTypeVariables #-}
+
 module System.Posix.PAM where
 
+import Control.Monad.Except
+import Control.Monad.Trans.Resource
+import Data.Either
+import Data.Functor (($>))
+import Data.IORef
 import Foreign.Ptr
 import System.Posix.PAM.LowLevel
 import System.Posix.PAM.Types
 
-authenticate
-  :: String -- ^ Service name
+authenticate :: (MonadIO m, MonadResource m, MonadError PamErrorCode m)
+  => String -- ^ Service name
   -> String -- ^ User name
   -> String -- ^ Password
-  -> IO (Either Int ())
+  -> m ()
 authenticate serviceName userName password = do
     let custConv :: String -> PamConv
         custConv pass _ messages = do
             let rs = map (\ _ -> PamResponse pass) messages
             return rs
-    (pamH, r1) <- pamStart serviceName userName (custConv password, nullPtr)
-    case r1 of
-        PamRetCode code -> return $ Left $ fromIntegral code
-        PamSuccess -> do
-            r2 <- pamAuthenticate pamH (PamFlag 0)
-            case r2 of
-                PamRetCode code -> return $ Left $ fromIntegral code
-                PamSuccess -> do
-                    r3 <- pamEnd pamH r2
-                    case r3 of
-                        PamSuccess -> return $ Right ()
-                        PamRetCode code -> return $ Left $ fromIntegral code
+    (_, pamHE :: Either PamErrorCode PamHandle) <- allocate
+      (runExceptT $ pamStart serviceName userName (custConv password, nullPtr))
+      (\pam -> readIORef (lastPamStatusRef pam) >>= \r -> pamEnd pam r $> ())
+
+    pamH <- case pamHE of
+      Left e -> throwError e
+      Right e -> return p
+
+    pamAuthenticate pamH (PamFlag 0)
 
 pamCodeToMessage :: Int -> String
 pamCodeToMessage = snd . pamCodeDetails

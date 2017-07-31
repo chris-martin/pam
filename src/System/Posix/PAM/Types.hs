@@ -1,5 +1,6 @@
 module System.Posix.PAM.Types where
 
+import Data.IORef
 import Foreign.C
 import Foreign.Ptr
 
@@ -33,16 +34,18 @@ including a corresponding field in this Haskell type.
 data PamResponse = PamResponse String
                  deriving (Show, Eq)
 
-data PamRetCode = PamSuccess
-                | PamRetCode Int
-                deriving (Show, Eq)
+newtype PamRetCode = PamRetCode Int
+  deriving (Show, Eq)
+
+newtype PamErrorCode = PamErrorCode Int
+  deriving (Show, Eq)
 
 data PamFlag = PamFlag Int
 
 type PamConv = Ptr () -> [PamMessage] -> IO [PamResponse]
 
-
-data PamHandle = PamHandle { cPamHandle :: Ptr ()
-                           , cPamCallback :: FunPtr (CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt)
-                           }
-                           deriving (Show, Eq)
+data PamHandle = PamHandle
+  { cPamHandle :: Ptr ()
+  , cPamCallback :: FunPtr (CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt)
+  , lastPamStatusRef :: IORef PamRetCode
+  }

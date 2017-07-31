@@ -128,7 +128,10 @@ Terminates a PAM transaction.
 
 -}
 foreign import ccall "security/pam_appl.h pam_end" c_pam_end
-  :: CPamHandle -> CInt -> IO CInt
+  :: CPamHandle
+  -> CInt -- ^ The value returned to the application by the last PAM library
+          -- call.
+  -> IO CInt
 
 {- |
 
