@@ -13,11 +13,11 @@ Cabal-Version:  >= 1.6
 Build-type:     Simple
 License:        BSD3
 License-File:   LICENSE
-Copyright:      Copyright (c) 2011-2012 Evgeny Tarasov
-Maintainer:     etarasov.ekb@gmail.com
+Copyright:      Copyright (c) 2011-2012 Evgeny Tarasov, 2017 Chris Martin
+Maintainer:     ch.martin@gmail.com
 Stability:      alpha
 Category:       System
-Homepage:       https://github.com/etarasov/pam/
+Homepage:       https://github.com/chris-martin/pam
 Tested-with:    GHC==8.0.2
 
 Extra-source-files: Setup.hs
@@ -39,4 +39,4 @@ Library
 
 Source-repository head
   type:     git
-  location: git://github.com/etarasov/pam.git
+  location: git://github.com/chris-martin/pam.git
