@@ -1,7 +1,7 @@
 resolver: lts-9.0
 
 packages:
-  - .
+  - pam
 
 nix:
   packages:
