@@ -1,6 +1,7 @@
 module System.Posix.PAM.LowLevel where
 
 import Control.Applicative (pure)
+import Control.Monad ((>>=))
 import Data.Function (($))
 import Data.Ord (Ord (..))
 import Data.Semigroup ((<>))
@@ -10,7 +11,7 @@ import Foreign.Marshal.Array
 import Foreign.Marshal.Alloc
 import Foreign.Ptr
 import Foreign.Storable
-import Prelude (String, fromIntegral, error)
+import Prelude (Int, String, fromIntegral, error)
 import System.IO (IO)
 import System.Posix.PAM.Types
 import System.Posix.PAM.Internals hiding (resp, conv)
@@ -131,3 +132,8 @@ pamAcctMgmt pamHandle (PamFlag flag) = do
     let cFlag = fromIntegral flag
     r <- c_pam_acct_mgmt (cPamHandle pamHandle) cFlag
     pure $ retCodeFromC r
+
+pamErrorString :: PamHandle -> Int -> IO String
+pamErrorString pamHandle errorCode =
+    c_pam_strerror (cPamHandle pamHandle) (fromIntegral errorCode) >>=
+    peekCString

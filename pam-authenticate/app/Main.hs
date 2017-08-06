@@ -11,11 +11,13 @@ import Data.Either (Either (..), either)
 import Data.Function (($))
 import Data.Functor (fmap, (<$>))
 import Data.Maybe (Maybe (..), maybe)
+import Data.Semigroup ((<>))
 import Data.Text (Text)
 import GHC.Generics (Generic)
 import Options.Generic (type (<?>))
-import Prelude (IO, (<*>), (>>=), pure, putStrLn)
+import Prelude (IO, Int, (<*>), (>>=), pure, putStrLn)
 import System.Exit (exitFailure, die)
+import Text.Show (show)
 
 import qualified Data.Text as Text
 import qualified Options.Applicative as Opt
@@ -93,8 +95,17 @@ promptForPassword p =
 authenticate :: AuthReq -> IO (Either Text ())
 authenticate AuthReq{req'service, req'username, req'password} =
   fmap
-    (first PAM.pamCodeToMessage)
+    (first renderError)
     (PAM.authenticate
       (Text.unpack req'service)
       (Text.unpack req'username)
       (Text.unpack req'password))
+
+renderError :: (Int, Maybe Text) -> Text
+renderError (code, maybeMessage) =
+    maybe
+      ("Error code " <> code')
+      (\m -> m <> " (error code " <> code' <> ")")
+      maybeMessage
+  where
+    code' = Text.pack $ show code

@@ -22,6 +22,9 @@ module System.Posix.PAM.Internals
   , c_pam_acct_mgmt
   , PamAcctMgmtFlags
 
+  -- * Error strings
+  , c_pam_strerror
+
   ) where
 
 import Data.Eq (Eq)
@@ -141,3 +144,11 @@ foreign import ccall "security/pam_appl.h pam_acct_mgmt" c_pam_acct_mgmt
 - @PAM_DISALLOW_NULL_AUTHTOK@ - The PAM module service should return
   @PAM_AUTH_ERR@ if the user does not have a registered authentication token. -}
 type PamAcctMgmtFlags = CInt
+
+{- | Returns a pointer to a string describing the error code passed in the
+argument errnum, possibly using the @LC_MESSAGES@ part of the current locale to
+select the appropriate language. -}
+foreign import ccall "security/pam_appl.h pam_strerror" c_pam_strerror
+  :: CPamHandle -- ^ A PAM handle obtained by a prior call to 'c_pam_start'.
+  -> CInt       -- ^ A PAM error code.
+  -> IO CString
