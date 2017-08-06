@@ -42,7 +42,7 @@ messageFromC cmes =
         str <- peekCString $ msg cmes
         pure $ PamMessage str style
 
-cConv :: (Ptr () -> [PamMessage] -> IO [PamResponse]) -> CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt
+cConv :: (Ptr () -> [PamMessage] -> IO [PamResponse]) -> ConvFunc
 cConv customConv num mesArrPtr respArrPtr appData =
     if num <= 0
         then pure 19

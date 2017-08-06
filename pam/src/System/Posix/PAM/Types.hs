@@ -1,7 +1,8 @@
 module System.Posix.PAM.Types where
 
+import System.Posix.PAM.Internals (ConvFunc)
+
 import Data.Eq (Eq)
-import Foreign.C
 import Foreign.Ptr
 import Prelude (Int, String)
 import System.IO (IO)
@@ -47,6 +48,6 @@ type PamConv = Ptr () -> [PamMessage] -> IO [PamResponse]
 
 
 data PamHandle = PamHandle { cPamHandle :: Ptr ()
-                           , cPamCallback :: FunPtr (CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt)
+                           , cPamCallback :: FunPtr ConvFunc
                            }
                            deriving (Show, Eq)

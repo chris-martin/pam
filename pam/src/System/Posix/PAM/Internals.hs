@@ -81,7 +81,7 @@ The actual conversation structure itself.
 
 -}
 data CPamConv = CPamConv
-  { conv :: FunPtr (CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt)
+  { conv :: FunPtr ConvFunc
   , appdata_ptr :: Ptr ()
   }
   deriving (CStorable, Eq, Generic, Show)
