@@ -10,11 +10,20 @@ http://www.linux-pam.org/Linux-PAM-html/Linux-PAM_ADG.html
 
 module System.Posix.PAM where
 
-import Data.Semigroup ((<>))
-import Data.Text (Text)
-import Foreign.Ptr
 import System.Posix.PAM.LowLevel
 import System.Posix.PAM.Types
+
+import Control.Applicative (pure)
+import Data.Either (Either (..))
+import Data.Function (($), (.))
+import Data.Functor (fmap)
+import Data.Semigroup ((<>))
+import Data.Text (Text)
+import Data.Tuple (fst, snd)
+import Foreign.Ptr
+import Prelude (Int, String, fromIntegral)
+import System.IO (IO)
+import Text.Show (show)
 
 import qualified Data.Text as Text
 
@@ -25,21 +34,20 @@ authenticate
   -> IO (Either Int ())
 authenticate serviceName userName password = do
     let custConv :: String -> PamConv
-        custConv pass _ messages = do
-            let rs = map (\ _ -> PamResponse pass) messages
-            return rs
+        custConv pass _ messages =
+            pure $ fmap (\_ -> PamResponse pass) messages
     (pamH, r1) <- pamStart serviceName userName (custConv password, nullPtr)
     case r1 of
-        PamRetCode code -> return $ Left $ fromIntegral code
+        PamRetCode code -> pure $ Left $ fromIntegral code
         PamSuccess -> do
             r2 <- pamAuthenticate pamH (PamFlag 0)
             case r2 of
-                PamRetCode code -> return $ Left $ fromIntegral code
+                PamRetCode code -> pure $ Left $ fromIntegral code
                 PamSuccess -> do
                     r3 <- pamEnd pamH r2
                     case r3 of
-                        PamSuccess -> return $ Right ()
-                        PamRetCode code -> return $ Left $ fromIntegral code
+                        PamSuccess -> pure $ Right ()
+                        PamRetCode code -> pure $ Left $ fromIntegral code
 
 pamCodeToMessage :: Int -> Text
 pamCodeToMessage = snd . pamCodeDetails

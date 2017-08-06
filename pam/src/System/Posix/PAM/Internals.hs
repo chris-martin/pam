@@ -24,11 +24,14 @@ module System.Posix.PAM.Internals
 
   ) where
 
+import Data.Eq (Eq)
 import Foreign.C
 import Foreign.CStorable (CStorable(..))
 import Foreign.Ptr
 import Foreign.Storable
 import GHC.Generics (Generic)
+import Text.Show (Show)
+import System.IO (IO)
 
 {- |
 

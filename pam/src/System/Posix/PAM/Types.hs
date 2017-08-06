@@ -1,7 +1,11 @@
 module System.Posix.PAM.Types where
 
+import Data.Eq (Eq)
 import Foreign.C
 import Foreign.Ptr
+import Prelude (Int, String)
+import System.IO (IO)
+import Text.Show (Show)
 
 {- |
 

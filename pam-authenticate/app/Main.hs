@@ -8,7 +8,7 @@ import qualified System.Posix.PAM as PAM
 import Control.Monad.Trans.Maybe (MaybeT (..))
 import Data.Bifunctor (Bifunctor (..))
 import Data.Either (Either (..), either)
-import Data.Function (($), (.))
+import Data.Function (($))
 import Data.Functor (fmap, (<$>))
 import Data.Maybe (Maybe (..), maybe)
 import Data.Text (Text)

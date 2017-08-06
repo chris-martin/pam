@@ -23,12 +23,13 @@ library:
 
   source-dirs: src
 
-  ghc-options: -Wall
-
 dependencies:
   - base >= 4 && < 5
   - c-storable-deriving
   - text
+
+ghc-options: -Wall
+default-extensions: NoImplicitPrelude
 
 github: chris-martin/pam
 maintainer: Chris Martin

@@ -1,12 +1,20 @@
 module System.Posix.PAM.LowLevel where
 
+import Control.Applicative (pure)
+import Data.Function (($))
+import Data.Ord (Ord (..))
+import Data.Semigroup ((<>))
+import Data.Traversable (traverse)
 import Foreign.C
 import Foreign.Marshal.Array
 import Foreign.Marshal.Alloc
 import Foreign.Ptr
 import Foreign.Storable
+import Prelude (String, fromIntegral, error)
+import System.IO (IO)
 import System.Posix.PAM.Types
 import System.Posix.PAM.Internals hiding (resp, conv)
+import Text.Show (show)
 
 retCodeFromC :: CInt -> PamRetCode
 retCodeFromC rc = case rc of
@@ -20,7 +28,7 @@ retCodeToC (PamRetCode a) = fromIntegral a
 responseToC :: PamResponse -> IO CPamResponse
 responseToC (PamResponse resp) = do
     resp' <- newCString resp
-    return $ CPamResponse resp' 0
+    pure $ CPamResponse resp' 0
 
 messageFromC :: CPamMessage -> IO PamMessage
 messageFromC cmes =
@@ -29,15 +37,15 @@ messageFromC cmes =
             2 -> PamPromptEchoOn
             3 -> PamErrorMsg
             4 -> PamTextInfo
-            a -> error $ "unknown style value: " ++ show a
+            a -> error $ "unknown style value: " <> show a
     in do
         str <- peekCString $ msg cmes
-        return $ PamMessage str style
+        pure $ PamMessage str style
 
 cConv :: (Ptr () -> [PamMessage] -> IO [PamResponse]) -> CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt
 cConv customConv num mesArrPtr respArrPtr appData =
     if num <= 0
-        then return 19
+        then pure 19
         else do
             -- get array pointer (pointer to first element)
             voidArr <- peek mesArrPtr
@@ -49,13 +57,13 @@ cConv customConv num mesArrPtr respArrPtr appData =
             cMessages <- peekArray (fromIntegral num) mesArr
 
             -- convert messages into high-level types
-            messages <- mapM messageFromC cMessages
+            messages <- traverse messageFromC cMessages
 
             -- create response list
             responses <- customConv appData messages
 
             -- convert responses into low-level types
-            cResponses <- mapM responseToC responses
+            cResponses <- traverse responseToC responses
 
             -- alloc memory for response array
             respArr <- mallocArray (fromIntegral num)
@@ -67,7 +75,7 @@ cConv customConv num mesArrPtr respArrPtr appData =
             poke respArrPtr $ castPtr respArr
 
             -- return PAM_SUCCESS
-            return 0
+            pure 0
 
 
 pamStart :: String -> String -> (PamConv, Ptr ()) -> IO (PamHandle, PamRetCode)
@@ -100,7 +108,7 @@ pamStart serviceName userName (pamConv, appData) = do
 
     free pamhPtr
 
-    return (PamHandle cPamHandle_ pamConvPtr, retCode)
+    pure (PamHandle cPamHandle_ pamConvPtr, retCode)
 
 pamEnd :: PamHandle -> PamRetCode -> IO PamRetCode
 pamEnd pamHandle inRetCode = do
@@ -110,16 +118,16 @@ pamEnd pamHandle inRetCode = do
     r <- c_pam_end (cPamHandle pamHandle) cRetCode
     freeHaskellFunPtr $ cPamCallback pamHandle
 
-    return $ retCodeFromC r
+    pure $ retCodeFromC r
 
 pamAuthenticate :: PamHandle -> PamFlag -> IO PamRetCode
 pamAuthenticate pamHandle (PamFlag flag) = do
     let cFlag = fromIntegral flag
     r <- c_pam_authenticate (cPamHandle pamHandle) cFlag
-    return $ retCodeFromC r
+    pure $ retCodeFromC r
 
 pamAcctMgmt :: PamHandle -> PamFlag -> IO PamRetCode
 pamAcctMgmt pamHandle (PamFlag flag) = do
     let cFlag = fromIntegral flag
     r <- c_pam_acct_mgmt (cPamHandle pamHandle) cFlag
-    return $ retCodeFromC r
+    pure $ retCodeFromC r
