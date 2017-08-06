@@ -15,9 +15,11 @@ library:
 
   exposed-modules:
     - System.Posix.PAM
+    - System.Posix.PAM.C
+    - System.Posix.PAM.C.Types
+    - System.Posix.PAM.C.Functions
     - System.Posix.PAM.LowLevel
     - System.Posix.PAM.Types
-    - System.Posix.PAM.Internals
 
   extra-libraries: pam
 

@@ -1,101 +1,20 @@
-{-# LANGUAGE DeriveGeneric, DeriveAnyClass, ForeignFunctionInterface #-}
+{-# LANGUAGE ForeignFunctionInterface #-}
 
-module System.Posix.PAM.Internals
-  (
-  -- * PAM session management
-    CPamHandle
-  , c_pam_start
-  , c_pam_end
-
-  -- * Conversation protocol
-  , CPamMessage (..)
-  , CPamResponse (..)
-  , CPamConv (..)
-  , ConvFunc
+module System.Posix.PAM.C.Functions
+  ( c_pam_start, c_pam_end
   , mkconvFunc
-
-  -- * Authenticating a user
-  , c_pam_authenticate
-  , PamAuthenticateFlags
-
-  -- * Checking if the authenticated user is valid
-  , c_pam_acct_mgmt
-  , PamAcctMgmtFlags
-
-  -- * Error strings
+  , c_pam_authenticate, PamAuthenticateFlags
+  , c_pam_acct_mgmt, PamAcctMgmtFlags
   , c_pam_strerror
-
   ) where
 
-import Data.Eq (Eq)
-import Foreign.C
-import Foreign.CStorable (CStorable(..))
-import Foreign.Ptr
-import Foreign.Storable
-import GHC.Generics (Generic)
-import Text.Show (Show)
+import System.Posix.PAM.C.Types
+
+import Foreign.C (CInt (..), CString)
+import Foreign.Ptr (FunPtr, Ptr)
 import System.IO (IO)
 
-{- |
-
-Used to pass prompting text, error messages, or other informatory text to the
-user.
-
-/This structure is allocated and freed by the PAM library (or loaded module)./
-
--}
-data CPamMessage = CPamMessage
-  { msg_style :: CInt
-  , msg :: CString
-  }
-  deriving (CStorable, Eq, Generic, Show)
-
-instance Storable CPamMessage
-  where
-   peek = cPeek
-   poke = cPoke
-   alignment = cAlignment
-   sizeOf = cSizeOf
-
-{- | Used to return the user's response to the PAM library.
-
-/This structure is allocated by the application program, and it is free()'d by/
-/the Linux-PAM library (or calling module)./ -}
-data CPamResponse = CPamResponse
-  { resp :: CString
-  , resp_retcode :: CInt -- ^ currently un-used, zero expected
-  }
-  deriving (CStorable, Eq, Generic, Show)
-
-instance Storable CPamResponse
-  where
-   peek = cPeek
-   poke = cPoke
-   alignment = cAlignment
-   sizeOf = cSizeOf
-
-{- | The actual conversation structure itself. -}
-data CPamConv = CPamConv
-  { conv :: FunPtr ConvFunc
-  , appdata_ptr :: Ptr ()
-  }
-  deriving (CStorable, Eq, Generic, Show)
-
-type ConvFunc = CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt
 foreign import ccall "wrapper" mkconvFunc :: ConvFunc -> IO (FunPtr ConvFunc)
-
-instance Storable CPamConv
-  where
-   peek = cPeek
-   poke = cPoke
-   alignment = cAlignment
-   sizeOf = cSizeOf
-
-{- | An opaque handle to a PAM session, obtained using 'c_pam_start' and freed
-using 'c_pam_end'.
-
-/You must use a different 'CPamHandle' for each transaction./ -}
-type CPamHandle = Ptr ()
 
 {- | Creates a 'CPamHandle' and initiates a PAM transaction. This is always the
 first thing you need to do to use PAM.

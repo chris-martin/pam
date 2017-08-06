@@ -1,6 +1,6 @@
 module System.Posix.PAM.Types where
 
-import System.Posix.PAM.Internals (ConvFunc)
+import System.Posix.PAM.C (ConvFunc)
 
 import Data.Eq (Eq)
 import Foreign.Ptr

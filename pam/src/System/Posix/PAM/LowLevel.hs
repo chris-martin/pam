@@ -1,20 +1,21 @@
 module System.Posix.PAM.LowLevel where
 
+import System.Posix.PAM.C hiding (resp, conv)
+import System.Posix.PAM.Types
+
 import Control.Applicative (pure)
 import Control.Monad ((>>=))
 import Data.Function (($))
 import Data.Ord (Ord (..))
 import Data.Semigroup ((<>))
 import Data.Traversable (traverse)
-import Foreign.C
-import Foreign.Marshal.Array
-import Foreign.Marshal.Alloc
-import Foreign.Ptr
-import Foreign.Storable
+import Foreign.C (CInt, newCString, peekCString)
+import Foreign.Marshal.Array (peekArray, mallocArray, pokeArray)
+import Foreign.Marshal.Alloc (malloc, free)
+import Foreign.Ptr (Ptr, castPtr, nullPtr, freeHaskellFunPtr)
+import Foreign.Storable (peek, poke)
 import Prelude (Int, String, fromIntegral, error)
 import System.IO (IO)
-import System.Posix.PAM.Types
-import System.Posix.PAM.Internals hiding (resp, conv)
 import Text.Show (show)
 
 retCodeFromC :: CInt -> PamRetCode
