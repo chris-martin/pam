@@ -6,9 +6,12 @@ http://www.linux-pam.org/Linux-PAM-html/Linux-PAM_ADG.html
 
 -}
 
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE NamedFieldPuns, OverloadedStrings #-}
 
-module System.Posix.PAM where
+module System.Posix.PAM
+  ( authenticate
+  , AuthRequest (..)
+  ) where
 
 import System.Posix.PAM.LowLevel
 import System.Posix.PAM.Types
@@ -26,15 +29,20 @@ import System.IO (IO)
 import qualified Data.Text as Text
 
 authenticate
-  :: String -- ^ Service name
-  -> String -- ^ User name
-  -> String -- ^ Password
+  :: AuthRequest
   -> IO (Either (Int, Maybe Text) ())
-authenticate serviceName userName password = do
+authenticate AuthRequest{ authRequestService
+                        , authRequestUsername
+                        , authRequestPassword
+                        } =
+  do
     let custConv :: String -> PamConv
         custConv pass _ messages =
             pure $ fmap (\_ -> PamResponse pass) messages
-    (pamH, r1) <- pamStart serviceName userName (custConv password, nullPtr)
+    (pamH, r1) <- pamStart
+        (Text.unpack authRequestService)
+        (Text.unpack authRequestUsername)
+        (custConv (Text.unpack authRequestPassword), nullPtr)
     case r1 of
         PamRetCode code -> pure $ Left (code, Nothing)
         PamSuccess -> do

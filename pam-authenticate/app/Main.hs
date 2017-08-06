@@ -52,16 +52,10 @@ getArgs =
 
 --------------------------------------------------------------------------------
 
-data AuthReq = AuthReq
-  { req'service :: Text
-  , req'username :: Text
-  , req'password :: Text
-  }
-
-getAuthReq :: Args -> IO (Maybe AuthReq)
+getAuthReq :: Args -> IO (Maybe PAM.AuthRequest)
 getAuthReq args =
   runMaybeT $
-  AuthReq <$>
+  PAM.AuthRequest <$>
   getService args <*>
   getUsername args <*>
   getPassword
@@ -92,14 +86,9 @@ promptForPassword p =
 
 --------------------------------------------------------------------------------
 
-authenticate :: AuthReq -> IO (Either Text ())
-authenticate AuthReq{req'service, req'username, req'password} =
-  fmap
-    (first renderError)
-    (PAM.authenticate
-      (Text.unpack req'service)
-      (Text.unpack req'username)
-      (Text.unpack req'password))
+authenticate :: PAM.AuthRequest -> IO (Either Text ())
+authenticate authRequest =
+  first renderError <$> PAM.authenticate authRequest
 
 renderError :: (Int, Maybe Text) -> Text
 renderError (code, maybeMessage) =

@@ -3,6 +3,7 @@ module System.Posix.PAM.Types where
 import System.Posix.PAM.C (ConvFunc)
 
 import Data.Eq (Eq)
+import Data.Text (Text)
 import Foreign.Ptr
 import Prelude (Int, String)
 import System.IO (IO)
@@ -41,5 +42,13 @@ data PamHandle =
   PamHandle
     { cPamHandle :: Ptr ()
     , cPamCallback :: FunPtr ConvFunc
+    }
+  deriving (Show, Eq)
+
+data AuthRequest =
+  AuthRequest
+    { authRequestService :: Text
+    , authRequestUsername :: Text
+    , authRequestPassword :: Text
     }
   deriving (Show, Eq)
