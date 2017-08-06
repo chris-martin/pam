@@ -6,11 +6,17 @@ http://www.linux-pam.org/Linux-PAM-html/Linux-PAM_ADG.html
 
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
+
 module System.Posix.PAM where
 
+import Data.Semigroup ((<>))
+import Data.Text (Text)
 import Foreign.Ptr
 import System.Posix.PAM.LowLevel
 import System.Posix.PAM.Types
+
+import qualified Data.Text as Text
 
 authenticate
   :: String -- ^ Service name
@@ -35,13 +41,13 @@ authenticate serviceName userName password = do
                         PamSuccess -> return $ Right ()
                         PamRetCode code -> return $ Left $ fromIntegral code
 
-pamCodeToMessage :: Int -> String
+pamCodeToMessage :: Int -> Text
 pamCodeToMessage = snd . pamCodeDetails
 
-pamCodeToCDefine :: Int -> String
+pamCodeToCDefine :: Int -> Text
 pamCodeToCDefine = fst . pamCodeDetails
 
-pamCodeDetails :: Int -> (String, String)
+pamCodeDetails :: Int -> (Text, Text)
 pamCodeDetails code = case code of
     0 -> ("PAM_SUCCESS", "Successful function return")
     1 -> ("PAM_OPEN_ERR", "dlopen() failure when dynamically loading a service module")
@@ -75,4 +81,4 @@ pamCodeDetails code = case code of
     29 -> ("PAM_BAD_ITEM", "Bad item passed to pam_*_item()")
     30 -> ("PAM_CONV_AGAIN", "conversation function is event driven and data is not available yet")
     31 -> ("PAM_INCOMPLETE", "please call this function again to complete authentication stack. Before calling again, verify that conversation is completed")
-    a -> ("PAM_UNKNOWN", "There is no code description in haskell pam library: " ++ show a)
+    a -> ("PAM_UNKNOWN", "There is no code description in haskell pam library: " <> Text.pack (show a))

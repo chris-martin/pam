@@ -11,7 +11,6 @@ import Data.Either (Either (..), either)
 import Data.Function (($), (.))
 import Data.Functor (fmap, (<$>))
 import Data.Maybe (Maybe (..), maybe)
-import Data.Semigroup ((<>))
 import Data.Text (Text)
 import GHC.Generics (Generic)
 import Options.Generic (type (<?>))
@@ -94,7 +93,7 @@ promptForPassword p =
 authenticate :: AuthReq -> IO (Either Text ())
 authenticate AuthReq{req'service, req'username, req'password} =
   fmap
-    (first (Text.pack . PAM.pamCodeToMessage))
+    (first PAM.pamCodeToMessage)
     (PAM.authenticate
       (Text.unpack req'service)
       (Text.unpack req'username)
