@@ -2,7 +2,14 @@ resolver: lts-9.0
 
 packages:
   - pam
+  - pam-authenticate
+
+extra-deps:
+  - c-storable-deriving-0.1.3
+  - optparse-generic-1.2.2
 
 nix:
   packages:
+    - gcc
+    - ncurses
     - pam

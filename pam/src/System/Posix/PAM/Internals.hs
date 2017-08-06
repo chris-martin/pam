@@ -1,4 +1,4 @@
-{-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE DeriveGeneric, DeriveAnyClass, ForeignFunctionInterface #-}
 
 module System.Posix.PAM.Internals
   (
@@ -25,10 +25,10 @@ module System.Posix.PAM.Internals
   ) where
 
 import Foreign.C
+import Foreign.CStorable (CStorable(..))
 import Foreign.Ptr
 import Foreign.Storable
-
-#include <security/pam_appl.h>
+import GHC.Generics (Generic)
 
 {- |
 
@@ -38,19 +38,18 @@ user.
 /This structure is allocated and freed by the PAM library (or loaded module)./
 
 -}
-data CPamMessage = CPamMessage { msg_style :: CInt
-                               , msg :: CString
-                               }
-                               deriving (Show,Eq)
+data CPamMessage = CPamMessage
+  { msg_style :: CInt
+  , msg :: CString
+  }
+  deriving (CStorable, Eq, Generic, Show)
 
-instance Storable CPamMessage where
-    alignment _ = alignment (undefined :: CDouble)
-    sizeOf _ = sizeOf (undefined :: CInt) + sizeOf (undefined :: CString)
-    peek p = CPamMessage <$> ({#get pam_message.msg_style #} p)
-                         <*> ({#get pam_message.msg #} p)
-    poke p (CPamMessage ms m) = do
-        {#set pam_message.msg_style #} p ms
-        {#set pam_message.msg #} p m
+instance Storable CPamMessage
+  where
+   peek = cPeek
+   poke = cPoke
+   alignment = cAlignment
+   sizeOf = cSizeOf
 
 {- |
 
@@ -61,41 +60,38 @@ Used to return the user's response to the PAM library.
 
 -}
 data CPamResponse = CPamResponse
-    { resp :: CString
-    , resp_retcode :: CInt -- ^ currently un-used, zero expected
-    }
-    deriving (Show,Eq)
+  { resp :: CString
+  , resp_retcode :: CInt -- ^ currently un-used, zero expected
+  }
+  deriving (CStorable, Eq, Generic, Show)
 
-instance Storable CPamResponse where
-    alignment _ = alignment (undefined :: CDouble)
-    sizeOf _ = sizeOf (undefined :: CString) + sizeOf (undefined :: CInt)
-    peek p = CPamResponse <$> ({#get pam_response.resp #} p)
-                          <*> ({#get pam_response.resp_retcode #} p)
-    poke p (CPamResponse r rc) = do
-        {#set pam_response.resp #} p r
-        {#set pam_response.resp_retcode #} p rc
+instance Storable CPamResponse
+  where
+   peek = cPeek
+   poke = cPoke
+   alignment = cAlignment
+   sizeOf = cSizeOf
 
 {- |
 
 The actual conversation structure itself.
 
 -}
-data CPamConv = CPamConv { conv :: FunPtr (CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt)
-                         , appdata_ptr :: Ptr ()
-                         }
-                         deriving (Show, Eq)
+data CPamConv = CPamConv
+  { conv :: FunPtr (CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt)
+  , appdata_ptr :: Ptr ()
+  }
+  deriving (CStorable, Eq, Generic, Show)
 
 type ConvFunc = CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt
 foreign import ccall "wrapper" mkconvFunc :: ConvFunc -> IO (FunPtr ConvFunc)
 
-instance Storable CPamConv where
-    alignment _ = alignment (undefined :: CDouble)
-    sizeOf _ = sizeOf (undefined :: FunPtr ()) + sizeOf (undefined :: Ptr ())
-    peek p = CPamConv <$> ({#get pam_conv.conv #} p)
-                      <*> ({#get pam_conv.appdata_ptr #} p)
-    poke p (CPamConv c ap) = do
-        {#set pam_conv.conv #} p c
-        {#set pam_conv.appdata_ptr #} p ap
+instance Storable CPamConv
+  where
+   peek = cPeek
+   poke = cPoke
+   alignment = cAlignment
+   sizeOf = cSizeOf
 
 {- |
 

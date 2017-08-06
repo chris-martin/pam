@@ -1,0 +1,36 @@
+name: pam
+version: 0.1.1
+
+synopsis: Haskell binding for C PAM API
+
+description: >
+  This package provides PAM interface for Haskell programs. It contains subset
+  of C PAM API bindings. The bindings don't include functions for writing PAM
+  modules.
+
+stability: alpha
+category: System
+
+library:
+
+  exposed-modules:
+    - System.Posix.PAM
+    - System.Posix.PAM.LowLevel
+    - System.Posix.PAM.Types
+    - System.Posix.PAM.Internals
+
+  extra-libraries: pam
+
+  source-dirs: src
+
+  ghc-options: -Wall
+
+dependencies:
+  - base >= 4 && < 5
+  - c-storable-deriving
+
+github: chris-martin/pam
+maintainer: Chris Martin
+copyright: Copyright (c) 2011-2012 Evgeny Tarasov, 2017 Chris Martin
+license: BSD3
+license-file: LICENSE
