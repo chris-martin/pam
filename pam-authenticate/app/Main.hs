@@ -8,7 +8,7 @@ import qualified System.Posix.PAM as PAM
 import Control.Monad.Trans.Maybe (MaybeT (..))
 import Data.Bifunctor (Bifunctor (..))
 import Data.Either (Either (..), either)
-import Data.Function (($))
+import Data.Function (($), (.))
 import Data.Functor (fmap, (<$>))
 import Data.Maybe (Maybe (..), maybe)
 import Data.Semigroup ((<>))
@@ -46,9 +46,8 @@ data Args = Args
 
 getArgs :: IO Args
 getArgs =
-  Opt.execParser $
-  Opt.info (Opt.helper <*> Opt.parseRecord) $
-  Opt.header "Test whether a username/password is correct."
+  Opt.execParser . Opt.info Opt.parseRecord . Opt.header $
+  "Test whether a username/password is correct."
 
 --------------------------------------------------------------------------------
 
