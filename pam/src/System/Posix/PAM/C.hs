@@ -1,27 +1,27 @@
 module System.Posix.PAM.C
   (
   -- * PAM session management
-    CPamHandle
-  , c_pam_start
-  , c_pam_end
+    PamHandle
+  , pam_start
+  , pam_end
 
   -- * Conversation protocol
-  , CPamMessage (..)
-  , CPamResponse (..)
-  , CPamConv (..)
+  , PamMessage (..)
+  , PamResponse (..)
+  , PamConv (..)
   , ConvFunc
   , mkconvFunc
 
   -- * Authenticating a user
-  , c_pam_authenticate
+  , pam_authenticate
   , PamAuthenticateFlags
 
   -- * Checking if the authenticated user is valid
-  , c_pam_acct_mgmt
+  , pam_acct_mgmt
   , PamAcctMgmtFlags
 
   -- * Error strings
-  , c_pam_strerror
+  , pam_strerror
 
   ) where
 

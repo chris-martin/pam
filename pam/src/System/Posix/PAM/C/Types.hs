@@ -1,11 +1,11 @@
 {-# LANGUAGE DeriveGeneric, DeriveAnyClass #-}
 
 module System.Posix.PAM.C.Types
-  ( CPamHandle
-  , CPamMessage (..)
-  , CPamResponse (..)
+  ( PamHandle
+  , PamMessage (..)
+  , PamResponse (..)
   , ConvFunc
-  , CPamConv (..)
+  , PamConv (..)
   ) where
 
 import Data.Eq (Eq)
@@ -17,27 +17,24 @@ import GHC.Generics (Generic)
 import Text.Show (Show)
 import System.IO (IO)
 
-{- | An opaque handle to a PAM session, obtained using 'c_pam_start' and freed
-using 'c_pam_end'.
+{- | An opaque handle to a PAM session, obtained using 'pam_start' and freed
+using 'pam_end'.
 
-/You must use a different 'CPamHandle' for each transaction./ -}
-type CPamHandle = Ptr ()
+/You must use a different 'PamHandle' for each transaction./ -}
+type PamHandle = Ptr ()
 
-{- |
-
-Used to pass prompting text, error messages, or other informatory text to the
-user.
+{- | Used to pass prompting text, error messages, or other informatory text to
+the user.
 
 /This structure is allocated and freed by the PAM library (or loaded module)./
-
 -}
-data CPamMessage = CPamMessage
+data PamMessage = PamMessage
   { msg_style :: CInt
   , msg :: CString
   }
   deriving (CStorable, Eq, Generic, Show)
 
-instance Storable CPamMessage
+instance Storable PamMessage
   where
    peek = cPeek
    poke = cPoke
@@ -48,13 +45,13 @@ instance Storable CPamMessage
 
 /This structure is allocated by the application program, and it is free()'d by/
 /the Linux-PAM library (or calling module)./ -}
-data CPamResponse = CPamResponse
+data PamResponse = PamResponse
   { resp :: CString
   , resp_retcode :: CInt -- ^ currently un-used, zero expected
   }
   deriving (CStorable, Eq, Generic, Show)
 
-instance Storable CPamResponse
+instance Storable PamResponse
   where
    peek = cPeek
    poke = cPoke
@@ -64,13 +61,13 @@ instance Storable CPamResponse
 type ConvFunc = CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt
 
 {- | The actual conversation structure itself. -}
-data CPamConv = CPamConv
+data PamConv = PamConv
   { conv :: FunPtr ConvFunc
   , appdata_ptr :: Ptr ()
   }
   deriving (CStorable, Eq, Generic, Show)
 
-instance Storable CPamConv
+instance Storable PamConv
   where
    peek = cPeek
    poke = cPoke
