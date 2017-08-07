@@ -1,7 +1,8 @@
 module System.Posix.PAM.LowLevel where
 
-import System.Posix.PAM.C hiding (resp, conv)
 import System.Posix.PAM.Types
+
+import qualified System.Posix.PAM.C as C
 
 import Control.Applicative (pure)
 import Control.Monad ((>>=))
@@ -27,24 +28,24 @@ retCodeToC :: PamRetCode -> CInt
 retCodeToC PamSuccess = 0
 retCodeToC (PamRetCode a) = fromIntegral a
 
-responseToC :: PamResponse -> IO CPamResponse
+responseToC :: PamResponse -> IO C.CPamResponse
 responseToC (PamResponse resp) = do
     resp' <- newCString resp
-    pure $ CPamResponse resp' 0
+    pure $ C.CPamResponse resp' 0
 
-messageFromC :: CPamMessage -> IO PamMessage
+messageFromC :: C.CPamMessage -> IO PamMessage
 messageFromC cmes =
-    let style = case msg_style cmes of
+    let style = case C.msg_style cmes of
             1 -> PamPromptEchoOff
             2 -> PamPromptEchoOn
             3 -> PamErrorMsg
             4 -> PamTextInfo
             a -> error $ "unknown style value: " <> show a
     in do
-        str <- peekCString $ msg cmes
+        str <- peekCString $ C.msg cmes
         pure $ PamMessage str style
 
-cConv :: (Ptr () -> [PamMessage] -> IO [PamResponse]) -> ConvFunc
+cConv :: (Ptr () -> [PamMessage] -> IO [PamResponse]) -> C.ConvFunc
 cConv customConv num mesArrPtr respArrPtr appData =
     if num <= 0
         then pure 19
@@ -53,7 +54,7 @@ cConv customConv num mesArrPtr respArrPtr appData =
             voidArr <- peek mesArrPtr
 
             -- cast pointer type from ()
-            let mesArr = castPtr voidArr :: Ptr CPamMessage
+            let mesArr = castPtr voidArr :: Ptr C.CPamMessage
 
             -- peek message list from array
             cMessages <- peekArray (fromIntegral num) mesArr
@@ -86,9 +87,9 @@ pamStart serviceName userName (pamConv, appData) = do
     cUserName <- newCString userName
 
     -- create FunPtr pointer to function and embedd PamConv function into cConv
-    pamConvPtr <- mkconvFunc $ cConv pamConv
+    pamConvPtr <- C.mkconvFunc $ cConv pamConv
 
-    let conv = CPamConv pamConvPtr appData
+    let conv = C.CPamConv pamConvPtr appData
 
     convPtr <- malloc
     poke convPtr conv
@@ -96,7 +97,7 @@ pamStart serviceName userName (pamConv, appData) = do
     pamhPtr <- malloc
     poke pamhPtr nullPtr
 
-    r1 <- c_pam_start cServiceName cUserName convPtr pamhPtr
+    r1 <- C.c_pam_start cServiceName cUserName convPtr pamhPtr
 
     cPamHandle_ <- peek pamhPtr
 
@@ -117,7 +118,7 @@ pamEnd pamHandle inRetCode = do
     let cRetCode = case inRetCode of
             PamSuccess -> 0
             PamRetCode a -> fromIntegral a
-    r <- c_pam_end (cPamHandle pamHandle) cRetCode
+    r <- C.c_pam_end (cPamHandle pamHandle) cRetCode
     freeHaskellFunPtr $ cPamCallback pamHandle
 
     pure $ retCodeFromC r
@@ -125,16 +126,16 @@ pamEnd pamHandle inRetCode = do
 pamAuthenticate :: PamHandle -> PamFlag -> IO PamRetCode
 pamAuthenticate pamHandle (PamFlag flag) = do
     let cFlag = fromIntegral flag
-    r <- c_pam_authenticate (cPamHandle pamHandle) cFlag
+    r <- C.c_pam_authenticate (cPamHandle pamHandle) cFlag
     pure $ retCodeFromC r
 
 pamAcctMgmt :: PamHandle -> PamFlag -> IO PamRetCode
 pamAcctMgmt pamHandle (PamFlag flag) = do
     let cFlag = fromIntegral flag
-    r <- c_pam_acct_mgmt (cPamHandle pamHandle) cFlag
+    r <- C.c_pam_acct_mgmt (cPamHandle pamHandle) cFlag
     pure $ retCodeFromC r
 
 pamErrorString :: PamHandle -> Int -> IO String
 pamErrorString pamHandle errorCode =
-    c_pam_strerror (cPamHandle pamHandle) (fromIntegral errorCode) >>=
+    C.c_pam_strerror (cPamHandle pamHandle) (fromIntegral errorCode) >>=
     peekCString

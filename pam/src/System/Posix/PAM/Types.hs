@@ -1,6 +1,6 @@
 module System.Posix.PAM.Types where
 
-import System.Posix.PAM.C (ConvFunc)
+import qualified System.Posix.PAM.C as C
 
 import Data.Eq (Eq)
 import Data.Text (Text)
@@ -41,7 +41,7 @@ type PamConv = Ptr () -> [PamMessage] -> IO [PamResponse]
 data PamHandle =
   PamHandle
     { cPamHandle :: Ptr ()
-    , cPamCallback :: FunPtr ConvFunc
+    , cPamCallback :: FunPtr C.ConvFunc
     }
   deriving (Show, Eq)
 
