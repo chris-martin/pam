@@ -14,7 +14,8 @@ import Foreign.C (CInt (..), CString)
 import Foreign.Ptr (FunPtr, Ptr)
 import System.IO (IO)
 
-foreign import ccall "wrapper" mkconvFunc :: ConvFunc -> IO (FunPtr ConvFunc)
+foreign import ccall "wrapper" mkconvFunc
+  :: ConvFunc -> IO (FunPtr ConvFunc)
 
 {- | Creates a 'CPamHandle' and initiates a PAM transaction. This is always the
 first thing you need to do to use PAM.
