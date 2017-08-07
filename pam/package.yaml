@@ -16,8 +16,9 @@ library:
   exposed-modules:
     - System.Posix.PAM
     - System.Posix.PAM.C
-    - System.Posix.PAM.C.Types
     - System.Posix.PAM.C.Functions
+    - System.Posix.PAM.C.ReturnValue
+    - System.Posix.PAM.C.Types
     - System.Posix.PAM.LowLevel
     - System.Posix.PAM.Types
 
@@ -29,6 +30,9 @@ dependencies:
   - base >= 4 && < 5
   - c-storable-deriving
   - text
+
+build-tools:
+  - hsc2hs
 
 ghc-options: -Wall
 default-extensions: NoImplicitPrelude

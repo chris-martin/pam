@@ -1,3 +1,10 @@
+{- |
+
+This module contains foreign bindings for @security/pam_appl.h@, which defines
+the PAM API.
+
+-}
+
 module System.Posix.PAM.C
   (
   -- * PAM session management
