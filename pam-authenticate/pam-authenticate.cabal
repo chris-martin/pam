@@ -1,0 +1,40 @@
+name: pam-authenticate
+version: 0.1.0.0
+stability: alpha
+category: System
+synopsis: App for checking a user password with PAM.
+
+description:
+    A small command-line app demonstrating checking a user password with PAM.
+
+homepage:    https://github.com/chris-martin/pam
+bug-reports: https://github.com/chris-martin/pam/issues
+
+maintainer: Chris Martin
+copyright: 2017-2018 Chris Martin
+
+license: BSD3
+license-file: LICENSE
+
+cabal-version: >= 1.10
+build-type: Simple
+
+source-repository head
+  type: git
+  location: https://github.com/chris-martin/pam
+
+executable pam-authenticate
+  hs-source-dirs: app
+  main-is: Main.hs
+  default-language: Haskell2010
+  default-extensions: NoImplicitPrelude
+  ghc-options: -Wall
+
+  build-depends:
+      base >=4 && <5
+    , haskeline
+    , optparse-applicative
+    , optparse-generic
+    , pam
+    , text
+    , transformers
