@@ -10,8 +10,7 @@ module System.Posix.PAM.Bindings.Types
 
 import Foreign.C (CInt, CString)
 import Foreign.Ptr (FunPtr, Ptr)
-import Foreign.CStorable (CStorable(..))
-import Foreign.Storable (Storable (..))
+import Foreign.Storable.Generic (GStorable (..))
 import GHC.Generics (Generic)
 
 {- | An opaque handle to a PAM session, obtained using 'pam_start' and freed
@@ -29,14 +28,7 @@ data PamMessage = PamMessage
   { msg_style :: CInt
   , msg :: CString
   }
-  deriving (CStorable, Eq, Generic, Show)
-
-instance Storable PamMessage
-  where
-   peek = cPeek
-   poke = cPoke
-   alignment = cAlignment
-   sizeOf = cSizeOf
+  deriving (GStorable, Eq, Generic, Show)
 
 {- | Used to return the user's response to the PAM library.
 
@@ -46,14 +38,7 @@ data PamResponse = PamResponse
   { resp :: CString
   , resp_retcode :: CInt -- ^ currently un-used, zero expected
   }
-  deriving (CStorable, Eq, Generic, Show)
-
-instance Storable PamResponse
-  where
-   peek = cPeek
-   poke = cPoke
-   alignment = cAlignment
-   sizeOf = cSizeOf
+  deriving (GStorable, Eq, Generic, Show)
 
 type ConvFunc = CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt
 
@@ -62,11 +47,4 @@ data PamConv = PamConv
   { conv :: FunPtr ConvFunc
   , appdata_ptr :: Ptr ()
   }
-  deriving (CStorable, Eq, Generic, Show)
-
-instance Storable PamConv
-  where
-   peek = cPeek
-   poke = cPoke
-   alignment = cAlignment
-   sizeOf = cSizeOf
+  deriving (GStorable, Eq, Generic, Show)
