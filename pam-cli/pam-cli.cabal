@@ -35,10 +35,8 @@ library
       base >=4 && <5
     , haskeline
     , optparse-applicative
-    , optparse-generic
     , pam
     , text
-    , transformers
 
 executable pam-password-check
   hs-source-dirs: app

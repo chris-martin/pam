@@ -1,95 +1,65 @@
-{-# LANGUAGE DataKinds, DeriveAnyClass, DeriveGeneric, LambdaCase,
-             NamedFieldPuns, OverloadedStrings, TypeOperators #-}
-
 module System.Posix.PAM.CLI where
 
 import qualified System.Posix.PAM as PAM
 
-import Control.Monad.Trans.Maybe (MaybeT (..))
-import Data.Bifunctor (Bifunctor (..))
-import Data.Either (either)
+-- base
 import Data.Maybe (maybe)
 import Data.Semigroup ((<>))
+import System.Exit (exitFailure)
+import Numeric (showInt)
+
+-- text
 import Data.Text (Text)
-import GHC.Generics (Generic)
-import Options.Generic (type (<?>))
-import System.Exit (exitFailure, die)
+import qualified Data.Text as T
+import qualified Data.Text.Lazy as LT
+import qualified Data.Text.Lazy.IO as LT
+import qualified Data.Text.Lazy.Builder as TB
 
-import qualified Data.Text as Text
+-- optparse-applicative
 import qualified Options.Applicative as Opt
-import qualified Options.Generic as Opt (ParseRecord, parseRecord, unHelpful)
-import qualified System.Console.Haskeline as Haskeline
 
---------------------------------------------------------------------------------
+-- haskeline
+import qualified System.Console.Haskeline as Haskeline
 
 main :: IO ()
 main =
-  getArgs >>= \args ->
-  getAuthReq args >>=
-  maybe exitFailure authenticate >>=
-  either
-    (\e -> die (Text.unpack e))
-    (\_ -> putStrLn "Authentication success")
+  do
+    (service, username) <- getOpts $
+        (,)
+        <$> textOpt "The name of the PAM service to use, \
+                    \e.g. \"login\" or \"system-auth\"."
+        <*> textOpt "The name of the user you're authenticating."
 
---------------------------------------------------------------------------------
+    password <- promptForPassword >>= maybe exitFailure return
 
-data Args = Args
-  { service :: Maybe Text <?>
-      "The name of the PAM service to use, e.g. \"login\" or \"system-auth\"."
-  , username :: Maybe Text <?>
-      "The name of the user you're authenticating."
-  } deriving (Generic, Opt.ParseRecord)
+    result <- PAM.authenticate (PAM.AuthRequest service username password)
+    case result of
+        Left err -> LT.putStrLn (renderError err)
+        Right () -> putStrLn "Authentication success"
 
-getArgs :: IO Args
-getArgs =
-  Opt.execParser . Opt.info Opt.parseRecord . Opt.header $
-  "Test whether a username/password is correct."
+textOpt :: String -> Opt.Parser Text
+textOpt long = T.pack <$> Opt.strOption (Opt.long long)
 
---------------------------------------------------------------------------------
+progDesc :: String
+progDesc = "Test whether a username/password is correct."
 
-getAuthReq :: Args -> IO (Maybe PAM.AuthRequest)
-getAuthReq args =
-  runMaybeT $
-  PAM.AuthRequest <$>
-  getService args <*>
-  getUsername args <*>
-  getPassword
+getOpts :: Opt.Parser a -> IO a
+getOpts p = Opt.execParser (Opt.info p (Opt.progDesc progDesc))
 
-getService :: Args -> MaybeT IO Text
-getService Args{service} =
-  maybe (prompt "Service: ") pure (Opt.unHelpful service)
+promptForPassword :: IO (Maybe Text)
+promptForPassword =
+  do
+    result <- Haskeline.runInputT Haskeline.defaultSettings
+                  (Haskeline.getPassword Nothing "Password: ")
+    return (T.pack <$> result)
 
-getUsername :: Args -> MaybeT IO Text
-getUsername Args{username} =
-  maybe (prompt "Username: ") pure (Opt.unHelpful username)
-
-getPassword :: MaybeT IO Text
-getPassword =
-  promptForPassword "Password: "
-
-prompt :: Text -> MaybeT IO Text
-prompt p =
-  fmap Text.pack $ MaybeT $
-  Haskeline.runInputT Haskeline.defaultSettings $
-  Haskeline.getInputLine (Text.unpack p)
-
-promptForPassword :: Text -> MaybeT IO Text
-promptForPassword p =
-  fmap Text.pack $ MaybeT $
-  Haskeline.runInputT Haskeline.defaultSettings $
-  Haskeline.getPassword Nothing (Text.unpack p)
-
---------------------------------------------------------------------------------
-
-authenticate :: PAM.AuthRequest -> IO (Either Text ())
-authenticate authRequest =
-  first renderError <$> PAM.authenticate authRequest
-
-renderError :: (Int, Maybe Text) -> Text
+renderError :: (Int, Maybe Text) -> LT.Text
 renderError (code, maybeMessage) =
-    maybe
-      ("Error code " <> code')
-      (\m -> m <> " (error code " <> code' <> ")")
-      maybeMessage
-  where
-    code' = Text.pack $ show code
+  TB.toLazyText $
+      case maybeMessage of
+          Nothing -> TB.fromString "Error code "
+                  <> TB.fromString (showInt code "")
+          Just m  -> TB.fromText m
+                  <> TB.fromString " (error code "
+                  <> TB.fromString (showInt code "")
+                  <> TB.fromString ")"
