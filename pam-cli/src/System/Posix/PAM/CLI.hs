@@ -26,9 +26,11 @@ main =
   do
     (service, username) <- getOpts $
         (,)
-        <$> textOpt "The name of the PAM service to use, \
-                    \e.g. \"login\" or \"system-auth\"."
-        <*> textOpt "The name of the user you're authenticating."
+        <$> textOpt "service"
+                "The name of the PAM service to use, \
+                \e.g. \"login\" or \"system-auth\"."
+        <*> textOpt "username"
+                "The name of the user you're authenticating."
 
     password <- promptForPassword >>= maybe exitFailure return
 
@@ -37,8 +39,8 @@ main =
         Left err -> LT.putStrLn (renderError err)
         Right () -> putStrLn "Authentication success"
 
-textOpt :: String -> Opt.Parser Text
-textOpt long = T.pack <$> Opt.strOption (Opt.long long)
+textOpt :: String -> String -> Opt.Parser Text
+textOpt long help = T.pack <$> Opt.strOption (Opt.long long <> Opt.help help)
 
 progDesc :: String
 progDesc = "Test whether a username/password is correct."
