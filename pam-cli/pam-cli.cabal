@@ -45,4 +45,7 @@ executable pam-password-check
   main-is: Main.hs
   default-language: Haskell2010
   ghc-options: -Wall
-  build-depends: pam-cli
+
+  build-depends:
+      base
+    , pam-cli
