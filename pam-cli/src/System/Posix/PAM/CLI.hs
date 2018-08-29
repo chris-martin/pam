@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds, DeriveAnyClass, DeriveGeneric, LambdaCase,
              NamedFieldPuns, OverloadedStrings, TypeOperators #-}
 
-module Main (main) where
+module System.Posix.PAM.CLI where
 
 import qualified System.Posix.PAM as PAM
 

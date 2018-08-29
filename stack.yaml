@@ -2,8 +2,8 @@ resolver: lts-12.8
 
 packages:
   - pam
-  - pam-authenticate
   - pam-bindings
+  - pam-cli
 
 extra-deps:
   - c-storable-deriving-0.1.3

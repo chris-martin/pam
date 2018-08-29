@@ -1,4 +1,4 @@
-name: pam-authenticate
+name: pam-cli
 version: 0.1.0.0
 stability: alpha
 category: System
@@ -23,12 +23,14 @@ source-repository head
   type: git
   location: https://github.com/chris-martin/pam
 
-executable pam-authenticate
-  hs-source-dirs: app
-  main-is: Main.hs
+library
+  hs-source-dirs: src
   default-language: Haskell2010
   default-extensions: NoImplicitPrelude
   ghc-options: -Wall
+
+  exposed-modules:
+      System.Posix.PAM.CLI
 
   build-depends:
       base >=4 && <5
@@ -38,3 +40,11 @@ executable pam-authenticate
     , pam
     , text
     , transformers
+
+executable pam-password-check
+  hs-source-dirs: app
+  main-is: Main.hs
+  default-language: Haskell2010
+  default-extensions: NoImplicitPrelude
+  ghc-options: -Wall
+  build-depends: pam-cli
