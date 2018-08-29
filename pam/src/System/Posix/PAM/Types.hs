@@ -9,8 +9,13 @@ import Prelude (Int, String)
 import System.IO (IO)
 import Text.Show (Show)
 
-{- | Used to pass prompting text, error messages, or other informatory text to
-the user. -}
+{- |
+
+Used to pass prompting text, error messages, or other informatory text to the
+user.
+
+-}
+
 data PamMessage =
   PamMessage
     { pmString :: String
@@ -27,7 +32,10 @@ data PamStyle =
 http://www.kernel.org/pub/linux/libs/pam/Linux-PAM-html/adg-interface-of-app-expected.html#adg-pam_conv
 
 The @resp_retcode@ member of the C struct is unused, so we do not bother
-including a corresponding field in this Haskell type. -}
+including a corresponding field in this Haskell type.
+
+-}
+
 data PamResponse = PamResponse String
   deriving (Show, Eq)
 
