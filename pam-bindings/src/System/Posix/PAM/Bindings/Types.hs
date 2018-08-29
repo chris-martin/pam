@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric, DeriveAnyClass #-}
 
-module System.Posix.PAM.C.Types
+module System.Posix.PAM.Bindings.Types
   ( PamHandle
   , PamMessage (..)
   , PamResponse (..)

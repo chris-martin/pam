@@ -1,6 +1,6 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 
-module System.Posix.PAM.C.Functions
+module System.Posix.PAM.Bindings.Functions
   ( pam_start, pam_end
   , mkconvFunc
   , pam_authenticate, PamAuthenticateFlags
@@ -8,7 +8,7 @@ module System.Posix.PAM.C.Functions
   , pam_strerror
   ) where
 
-import System.Posix.PAM.C.Types
+import System.Posix.PAM.Bindings.Types
 
 import Foreign.C (CInt (..), CString)
 import Foreign.Ptr (FunPtr, Ptr)

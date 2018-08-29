@@ -1,11 +1,11 @@
-name: pam
+name: pam-bindings
 version: 0.1.1
 stability: alpha
 category: System
-synopsis: Haskell binding for C PAM API
+synopsis: FFI bindings for C PAM API
 
 description:
-    This package provides PAM interface for Haskell programs.
+    This package provides FFI bindings for the PAM interface.
     It contains subset of C PAM API bindings. The bindings
     don't include functions for writing PAM modules.
 
@@ -34,11 +34,13 @@ library
   ghc-options: -Wall
 
   exposed-modules:
-      System.Posix.PAM
-      System.Posix.PAM.LowLevel
-      System.Posix.PAM.Types
+      System.Posix.PAM.Bindings
+      System.Posix.PAM.Bindings.Functions
+      System.Posix.PAM.Bindings.Types
+
+  extra-libraries:
+      pam
 
   build-depends:
       base >=4 && <5
-    , pam-bindings
-    , text
+    , c-storable-deriving

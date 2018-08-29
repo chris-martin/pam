@@ -2,7 +2,7 @@ module System.Posix.PAM.LowLevel where
 
 import System.Posix.PAM.Types
 
-import qualified System.Posix.PAM.C as C
+import qualified System.Posix.PAM.Bindings as C
 
 import Control.Applicative (pure)
 import Control.Monad ((>>=))

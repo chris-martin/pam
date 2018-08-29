@@ -1,4 +1,4 @@
-module System.Posix.PAM.C
+module System.Posix.PAM.Bindings
   (
   -- * PAM session management
     PamHandle
@@ -25,5 +25,5 @@ module System.Posix.PAM.C
 
   ) where
 
-import System.Posix.PAM.C.Functions
-import System.Posix.PAM.C.Types
+import System.Posix.PAM.Bindings.Functions
+import System.Posix.PAM.Bindings.Types

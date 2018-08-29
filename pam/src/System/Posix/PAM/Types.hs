@@ -1,6 +1,6 @@
 module System.Posix.PAM.Types where
 
-import qualified System.Posix.PAM.C as C
+import qualified System.Posix.PAM.Bindings as C
 
 import Data.Eq (Eq)
 import Data.Text (Text)
