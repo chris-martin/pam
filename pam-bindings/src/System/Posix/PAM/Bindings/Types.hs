@@ -8,14 +8,11 @@ module System.Posix.PAM.Bindings.Types
   , PamConv (..)
   ) where
 
-import Data.Eq (Eq)
 import Foreign.C (CInt, CString)
 import Foreign.Ptr (FunPtr, Ptr)
 import Foreign.CStorable (CStorable(..))
 import Foreign.Storable (Storable (..))
 import GHC.Generics (Generic)
-import Text.Show (Show)
-import System.IO (IO)
 
 {- | An opaque handle to a PAM session, obtained using 'pam_start' and freed
 using 'pam_end'.

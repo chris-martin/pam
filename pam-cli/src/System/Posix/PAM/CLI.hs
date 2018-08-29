@@ -7,17 +7,13 @@ import qualified System.Posix.PAM as PAM
 
 import Control.Monad.Trans.Maybe (MaybeT (..))
 import Data.Bifunctor (Bifunctor (..))
-import Data.Either (Either (..), either)
-import Data.Function (($), (.))
-import Data.Functor (fmap, (<$>))
-import Data.Maybe (Maybe (..), maybe)
+import Data.Either (either)
+import Data.Maybe (maybe)
 import Data.Semigroup ((<>))
 import Data.Text (Text)
 import GHC.Generics (Generic)
 import Options.Generic (type (<?>))
-import Prelude (IO, Int, (<*>), (>>=), pure, putStrLn)
 import System.Exit (exitFailure, die)
-import Text.Show (show)
 
 import qualified Data.Text as Text
 import qualified Options.Applicative as Opt

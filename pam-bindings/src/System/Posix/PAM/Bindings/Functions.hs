@@ -12,7 +12,6 @@ import System.Posix.PAM.Bindings.Types
 
 import Foreign.C (CInt (..), CString)
 import Foreign.Ptr (FunPtr, Ptr)
-import System.IO (IO)
 
 foreign import ccall "wrapper" mkconvFunc
   :: ConvFunc -> IO (FunPtr ConvFunc)
