@@ -5,7 +5,6 @@ module System.Posix.PAM.LowLevel where
 import System.Posix.PAM.Types
 
 import qualified System.Posix.PAM.Bindings as C
-import qualified System.Posix.PAM.Bindings.ReturnValue as C
 
 import Control.Applicative (pure)
 import Data.Function (($))

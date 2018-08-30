@@ -20,6 +20,11 @@ module System.Posix.PAM.Bindings
   , pam_acct_mgmt
   , PamAcctMgmtFlags
 
+  -- * Return value
+  , ReturnValue (..)
+  -- $success
+  , success
+
   -- * Error strings
   , pam_strerror
 
@@ -27,3 +32,8 @@ module System.Posix.PAM.Bindings
 
 import System.Posix.PAM.Bindings.Functions
 import System.Posix.PAM.Bindings.Types
+import System.Posix.PAM.Bindings.ReturnValue (ReturnValue (..), success)
+
+-- $success
+-- 'success' is the only 'ReturnValue' exported from this module; for the rest,
+-- see "System.Posix.PAM.Bindings.ReturnValue".
