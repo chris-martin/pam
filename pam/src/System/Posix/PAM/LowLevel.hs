@@ -79,9 +79,9 @@ pamStart serviceName userName (pamConv, appData) = do
     convPtr <- malloc
     poke convPtr conv
 
-    pamhPtr :: Ptr C.PamHandle <- calloc
+    pamhPtr :: Ptr C.Handle <- calloc
     r1 :: C.ReturnValue <- C.pam_start cServiceName cUserName convPtr pamhPtr
-    cPamHandle_ :: C.PamHandle <- peek pamhPtr
+    cPamHandle_ :: C.Handle <- peek pamhPtr
 
     free cServiceName
     free cUserName

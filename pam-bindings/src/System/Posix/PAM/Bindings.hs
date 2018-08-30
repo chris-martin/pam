@@ -1,7 +1,7 @@
 module System.Posix.PAM.Bindings
   (
   -- * PAM session management
-    PamHandle
+    Handle
   , pam_start
   , pam_end
 
@@ -31,6 +31,7 @@ module System.Posix.PAM.Bindings
   ) where
 
 import System.Posix.PAM.Bindings.Functions
+import System.Posix.PAM.Bindings.Handle
 import System.Posix.PAM.Bindings.Response (Response (..))
 import System.Posix.PAM.Bindings.ReturnValue (ReturnValue (..), success)
 import System.Posix.PAM.Bindings.Types

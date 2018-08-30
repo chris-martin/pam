@@ -1,31 +1,19 @@
 {-# LANGUAGE CPP, GeneralizedNewtypeDeriving, RecordWildCards #-}
 
 module System.Posix.PAM.Bindings.Types
-  ( PamHandle (..)
-  , PamMessage (..)
+  ( PamMessage (..)
   , ConvFunc
   , PamConv (..)
   ) where
 
+import System.Posix.PAM.Bindings.Handle (Handle (..))
 import System.Posix.PAM.Bindings.MessageStyle (MessageStyle (..))
 
-import Data.Void (Void)
 import Foreign.C (CInt, CString)
 import Foreign.Ptr (FunPtr, Ptr)
 import Foreign.Storable (Storable (..))
 
 #include <security/pam_appl.h>
-
-{- |
-
-An opaque handle to a PAM session, obtained using 'pam_start' and freed using
-'pam_end'.
-
-You must use a different 'PamHandle' for each transaction.
-
--}
-
-newtype PamHandle = PamHandle (Ptr Void) deriving Storable
 
 {- |
 

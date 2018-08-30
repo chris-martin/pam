@@ -35,7 +35,7 @@ type PamConv = Ptr () -> [PamMessage] -> IO [Response]
 
 data PamHandle =
   PamHandle
-    { cPamHandle :: C.PamHandle
+    { cPamHandle :: C.Handle
     , cPamCallback :: FunPtr C.ConvFunc
     }
 
