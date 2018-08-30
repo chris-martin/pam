@@ -6,6 +6,8 @@ import System.Posix.PAM.Types
 
 import qualified System.Posix.PAM.Bindings as C
 import qualified System.Posix.PAM.MessageStyle as MessageStyle
+import qualified System.Posix.PAM.Response as Response
+import System.Posix.PAM.Response (Response)
 
 import Data.Semigroup ((<>))
 import Data.Traversable (traverse)
@@ -23,18 +25,13 @@ retCodeToC :: PamRetCode -> C.ReturnValue
 retCodeToC PamSuccess      =  C.success
 retCodeToC (PamRetCode x)  =  C.ReturnValue (fromIntegral x)
 
-responseToC :: PamResponse -> IO C.PamResponse
-responseToC (PamResponse resp) = do
-    resp' <- newCString resp
-    pure $ C.PamResponse resp' 0
-
 messageFromC :: C.PamMessage -> IO PamMessage
 messageFromC cmes =
     PamMessage
         <$> peekCString (C.msg cmes)
         <*> MessageStyle.from_C_IO (C.msg_style cmes)
 
-cConv :: (Ptr () -> [PamMessage] -> IO [PamResponse]) -> C.ConvFunc
+cConv :: (Ptr () -> [PamMessage] -> IO [Response]) -> C.ConvFunc
 cConv customConv num mesArrPtr respArrPtr appData =
     if num <= 0
         then pure 19
@@ -55,7 +52,7 @@ cConv customConv num mesArrPtr respArrPtr appData =
             responses <- customConv appData messages
 
             -- convert responses into low-level types
-            cResponses <- traverse responseToC responses
+            cResponses <- traverse Response.to_C responses
 
             -- alloc memory for response array
             respArr <- mallocArray (fromIntegral num)

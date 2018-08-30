@@ -7,7 +7,7 @@ module System.Posix.PAM.Bindings
 
   -- * Conversation protocol
   , PamMessage (..)
-  , PamResponse (..)
+  , Response (..)
   , PamConv (..)
   , ConvFunc
   , mkconvFunc
@@ -31,8 +31,9 @@ module System.Posix.PAM.Bindings
   ) where
 
 import System.Posix.PAM.Bindings.Functions
-import System.Posix.PAM.Bindings.Types
+import System.Posix.PAM.Bindings.Response (Response (..))
 import System.Posix.PAM.Bindings.ReturnValue (ReturnValue (..), success)
+import System.Posix.PAM.Bindings.Types
 
 -- $success
 -- 'success' is the only 'ReturnValue' exported from this module; for the rest,

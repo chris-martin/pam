@@ -14,6 +14,7 @@ module System.Posix.PAM
   ) where
 
 import System.Posix.PAM.LowLevel
+import System.Posix.PAM.Response
 import System.Posix.PAM.Types
 
 import Control.Applicative (pure)
@@ -38,7 +39,7 @@ authenticate AuthRequest{ authRequestService
   do
     let custConv :: String -> PamConv
         custConv pass _ messages =
-            pure $ fmap (\_ -> PamResponse pass) messages
+            pure $ fmap (\_ -> Response pass) messages
     (pamH, r1) <- pamStart
         (Text.unpack authRequestService)
         (Text.unpack authRequestUsername)

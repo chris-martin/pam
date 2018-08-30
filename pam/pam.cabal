@@ -35,6 +35,7 @@ library
   exposed-modules:
       System.Posix.PAM
       System.Posix.PAM.LowLevel
+      System.Posix.PAM.Response
       System.Posix.PAM.MessageStyle
       System.Posix.PAM.Types
 

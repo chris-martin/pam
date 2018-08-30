@@ -3,7 +3,6 @@
 module System.Posix.PAM.Bindings.Types
   ( PamHandle (..)
   , PamMessage (..)
-  , PamResponse (..)
   , ConvFunc
   , PamConv (..)
   ) where
@@ -55,35 +54,6 @@ instance Storable PamMessage where
   poke ptr PamMessage{..} = do
     #{poke struct pam_message, msg_style} ptr msg_style
     #{poke struct pam_message, msg}       ptr msg
-
-{- |
-
-Used to return the user's response to the PAM library.
-
-This structure is allocated by the application program, and it is free()'d by
-the Linux-PAM library (or calling module).
-
--}
-
-data PamResponse = PamResponse
-  { resp :: CString
-  , resp_retcode :: CInt -- ^ currently un-used, zero expected
-  }
-  deriving (Eq, Show)
-
-instance Storable PamResponse where
-
-  sizeOf    _ = #size      struct pam_response
-  alignment _ = #alignment struct pam_response
-
-  peek ptr = do
-    resp         <- #{peek struct pam_response, resp}         ptr
-    resp_retcode <- #{peek struct pam_response, resp_retcode} ptr
-    return PamResponse{..}
-
-  poke ptr PamResponse{..} = do
-    #{poke struct pam_response, resp}         ptr resp
-    #{poke struct pam_response, resp_retcode} ptr resp_retcode
 
 type ConvFunc = CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt
 
