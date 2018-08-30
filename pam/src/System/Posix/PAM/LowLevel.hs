@@ -5,14 +5,14 @@ module System.Posix.PAM.LowLevel where
 import System.Posix.PAM.Types
 
 import qualified System.Posix.PAM.Bindings as C
+import qualified System.Posix.PAM.Bindings.ReturnValue as C
 
 import Control.Applicative (pure)
-import Control.Monad ((>>=))
 import Data.Function (($))
 import Data.Ord (Ord (..))
 import Data.Semigroup ((<>))
 import Data.Traversable (traverse)
-import Foreign.C (CInt, newCString, peekCString)
+import Foreign.C (newCString, peekCString)
 import Foreign.Marshal.Array (peekArray, mallocArray, pokeArray)
 import Foreign.Marshal.Alloc (calloc, malloc, free)
 import Foreign.Ptr (Ptr, castPtr, freeHaskellFunPtr)
@@ -21,14 +21,14 @@ import Prelude (Int, String, fromIntegral, error)
 import System.IO (IO)
 import Text.Show (show)
 
-retCodeFromC :: CInt -> PamRetCode
-retCodeFromC rc = case rc of
+retCodeFromC :: C.ReturnValue -> PamRetCode
+retCodeFromC (C.ReturnValue rc) = case rc of
             0 -> PamSuccess
             a -> PamRetCode $ fromIntegral a
 
-retCodeToC :: PamRetCode -> CInt
-retCodeToC PamSuccess = 0
-retCodeToC (PamRetCode a) = fromIntegral a
+retCodeToC :: PamRetCode -> C.ReturnValue
+retCodeToC PamSuccess = C.ReturnValue 0
+retCodeToC (PamRetCode a) = C.ReturnValue $ fromIntegral a
 
 responseToC :: PamResponse -> IO C.PamResponse
 responseToC (PamResponse resp) = do
@@ -96,12 +96,12 @@ pamStart serviceName userName (pamConv, appData) = do
     poke convPtr conv
 
     pamhPtr :: Ptr C.PamHandle <- calloc
-    r1 <- C.pam_start cServiceName cUserName convPtr pamhPtr
+    r1 :: C.ReturnValue <- C.pam_start cServiceName cUserName convPtr pamhPtr
     cPamHandle_ :: C.PamHandle <- peek pamhPtr
 
     let retCode = case r1 of
-            0 -> PamSuccess
-            a -> PamRetCode $ fromIntegral a
+            C.ReturnValue 0 -> PamSuccess
+            C.ReturnValue a -> PamRetCode $ fromIntegral a
 
     free cServiceName
     free cUserName
@@ -134,5 +134,8 @@ pamAcctMgmt pamHandle (PamFlag flag) = do
 
 pamErrorString :: PamHandle -> Int -> IO String
 pamErrorString pamHandle errorCode =
-    C.pam_strerror (cPamHandle pamHandle) (fromIntegral errorCode) >>=
-    peekCString
+  do
+    cStr <- C.pam_strerror
+              (cPamHandle pamHandle)
+              (C.ReturnValue (fromIntegral errorCode))
+    peekCString cStr

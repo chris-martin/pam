@@ -9,6 +9,7 @@ module System.Posix.PAM.Bindings.Functions
   ) where
 
 import System.Posix.PAM.Bindings.Types
+import System.Posix.PAM.Bindings.ReturnValue (ReturnValue (..))
 
 import Foreign.C (CInt (..), CString)
 import Foreign.Ptr (FunPtr, Ptr)
@@ -26,7 +27,7 @@ Make sure you call 'pam_end' once the transaction is over.
 -}
 
 foreign import ccall "security/pam_appl.h pam_start" pam_start
-  :: CString -> CString -> Ptr PamConv -> Ptr PamHandle -> IO CInt
+  :: CString -> CString -> Ptr PamConv -> Ptr PamHandle -> IO ReturnValue
 
 {- |
 
@@ -38,7 +39,7 @@ with it.
 -}
 
 foreign import ccall "security/pam_appl.h pam_end" pam_end
-  :: PamHandle -> CInt -> IO CInt
+  :: PamHandle -> CInt -> IO ReturnValue
 
 {- |
 
@@ -53,7 +54,7 @@ that the user enter their username via the conversation mechanism (see
 foreign import ccall "security/pam_appl.h pam_authenticate" pam_authenticate
   :: PamHandle -- ^ A PAM handle obtained by a prior call to 'pam_start'.
   -> PamAuthenticateFlags
-  -> IO CInt
+  -> IO ReturnValue
 
 {- |
 
@@ -79,7 +80,7 @@ called after the user has been authenticated.
 foreign import ccall "security/pam_appl.h pam_acct_mgmt" pam_acct_mgmt
   :: PamHandle -- ^ A PAM handle obtained by a prior call to 'pam_start'.
   -> PamAcctMgmtFlags
-  -> IO CInt
+  -> IO ReturnValue
 
 {- |
 
@@ -103,6 +104,6 @@ the appropriate language.
 -}
 
 foreign import ccall "security/pam_appl.h pam_strerror" pam_strerror
-  :: PamHandle -- ^ A PAM handle obtained by a prior call to 'pam_start'.
-  -> CInt      -- ^ A PAM error code.
+  :: PamHandle   -- ^ A PAM handle obtained by a prior call to 'pam_start'.
+  -> ReturnValue -- ^ A PAM error code.
   -> IO CString
