@@ -8,6 +8,8 @@ module System.Posix.PAM.Bindings.Types
   , PamConv (..)
   ) where
 
+import System.Posix.PAM.Bindings.MessageStyle (MessageStyle (..))
+
 import Data.Void (Void)
 import Foreign.C (CInt, CString)
 import Foreign.Ptr (FunPtr, Ptr)
@@ -36,10 +38,9 @@ This structure is allocated and freed by the PAM library (or loaded module).
 -}
 
 data PamMessage = PamMessage
-  { msg_style :: CInt
+  { msg_style :: MessageStyle
   , msg :: CString
   }
-  deriving (Eq, Show)
 
 instance Storable PamMessage where
 

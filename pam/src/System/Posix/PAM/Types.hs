@@ -2,6 +2,8 @@ module System.Posix.PAM.Types where
 
 import qualified System.Posix.PAM.Bindings as C
 
+import System.Posix.PAM.MessageStyle (MessageStyle)
+
 import Data.Eq (Eq)
 import Data.Text (Text)
 import Foreign.Ptr
@@ -19,12 +21,8 @@ user.
 data PamMessage =
   PamMessage
     { pmString :: String
-    , pmStyle :: PamStyle
+    , pmStyle :: MessageStyle
     }
-  deriving (Show, Eq)
-
-data PamStyle =
-  PamPromptEchoOff | PamPromptEchoOn | PamErrorMsg | PamTextInfo
   deriving (Show, Eq)
 
 {- | Used to return the user's response to the PAM library.

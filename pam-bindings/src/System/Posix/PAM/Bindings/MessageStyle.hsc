@@ -1,13 +1,14 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, GeneralizedNewtypeDeriving #-}
 
 module System.Posix.PAM.Bindings.MessageStyle where
 
-import Foreign.C.Types
+import Foreign.C.Types (CInt)
+import Foreign.Storable (Storable)
 
 #include <security/pam_appl.h>
 
 newtype MessageStyle = MessageStyle CInt
-    deriving Eq
+    deriving (Eq, Storable)
 
 promptEchoOff :: MessageStyle
 promptEchoOff = MessageStyle #const PAM_PROMPT_ECHO_OFF

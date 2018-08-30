@@ -5,6 +5,7 @@ module System.Posix.PAM.LowLevel where
 import System.Posix.PAM.Types
 
 import qualified System.Posix.PAM.Bindings as C
+import qualified System.Posix.PAM.MessageStyle as MessageStyle
 
 import Data.Semigroup ((<>))
 import Data.Traversable (traverse)
@@ -29,15 +30,9 @@ responseToC (PamResponse resp) = do
 
 messageFromC :: C.PamMessage -> IO PamMessage
 messageFromC cmes =
-    let style = case C.msg_style cmes of
-            1 -> PamPromptEchoOff
-            2 -> PamPromptEchoOn
-            3 -> PamErrorMsg
-            4 -> PamTextInfo
-            a -> error $ "unknown style value: " <> show a
-    in do
-        str <- peekCString $ C.msg cmes
-        pure $ PamMessage str style
+    PamMessage
+        <$> peekCString (C.msg cmes)
+        <*> MessageStyle.from_C_IO (C.msg_style cmes)
 
 cConv :: (Ptr () -> [PamMessage] -> IO [PamResponse]) -> C.ConvFunc
 cConv customConv num mesArrPtr respArrPtr appData =
