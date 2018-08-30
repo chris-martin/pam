@@ -6,9 +6,6 @@ import System.Posix.PAM.Types
 
 import qualified System.Posix.PAM.Bindings as C
 
-import Control.Applicative (pure)
-import Data.Function (($))
-import Data.Ord (Ord (..))
 import Data.Semigroup ((<>))
 import Data.Traversable (traverse)
 import Foreign.C (newCString, peekCString)
@@ -16,18 +13,14 @@ import Foreign.Marshal.Array (peekArray, mallocArray, pokeArray)
 import Foreign.Marshal.Alloc (calloc, malloc, free)
 import Foreign.Ptr (Ptr, castPtr, freeHaskellFunPtr)
 import Foreign.Storable (peek, poke)
-import Prelude (Int, String, fromIntegral, error)
-import System.IO (IO)
-import Text.Show (show)
 
 retCodeFromC :: C.ReturnValue -> PamRetCode
-retCodeFromC (C.ReturnValue rc) = case rc of
-            0 -> PamSuccess
-            a -> PamRetCode $ fromIntegral a
+retCodeFromC r | r == C.success  =  PamSuccess
+retCodeFromC (C.ReturnValue x)   =  PamRetCode (fromIntegral x)
 
 retCodeToC :: PamRetCode -> C.ReturnValue
-retCodeToC PamSuccess = C.ReturnValue 0
-retCodeToC (PamRetCode a) = C.ReturnValue $ fromIntegral a
+retCodeToC PamSuccess      =  C.success
+retCodeToC (PamRetCode x)  =  C.ReturnValue (fromIntegral x)
 
 responseToC :: PamResponse -> IO C.PamResponse
 responseToC (PamResponse resp) = do
@@ -98,16 +91,12 @@ pamStart serviceName userName (pamConv, appData) = do
     r1 :: C.ReturnValue <- C.pam_start cServiceName cUserName convPtr pamhPtr
     cPamHandle_ :: C.PamHandle <- peek pamhPtr
 
-    let retCode = case r1 of
-            C.ReturnValue 0 -> PamSuccess
-            C.ReturnValue a -> PamRetCode $ fromIntegral a
-
     free cServiceName
     free cUserName
     free convPtr
     free pamhPtr
 
-    pure (PamHandle cPamHandle_ pamConvPtr, retCode)
+    pure (PamHandle cPamHandle_ pamConvPtr, retCodeFromC r1)
 
 pamEnd :: PamHandle -> PamRetCode -> IO PamRetCode
 pamEnd pamHandle inRetCode = do

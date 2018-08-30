@@ -7,6 +7,7 @@ import Foreign.C.Types
 #include <security/pam_appl.h>
 
 newtype ReturnValue = ReturnValue CInt
+    deriving Eq
 
 -- | Successful function return
 success :: ReturnValue
