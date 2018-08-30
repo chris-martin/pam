@@ -1,13 +1,14 @@
 {-# LANGUAGE DeriveGeneric, DeriveAnyClass #-}
 
 module System.Posix.PAM.Bindings.Types
-  ( PamHandle
+  ( PamHandle (..)
   , PamMessage (..)
   , PamResponse (..)
   , ConvFunc
   , PamConv (..)
   ) where
 
+import Data.Void (Void)
 import Foreign.C (CInt, CString)
 import Foreign.Ptr (FunPtr, Ptr)
 import Foreign.Storable.Generic (GStorable (..))
@@ -22,7 +23,7 @@ You must use a different 'PamHandle' for each transaction.
 
 -}
 
-type PamHandle = Ptr ()
+newtype PamHandle = PamHandle (Ptr Void)
 
 {- |
 
