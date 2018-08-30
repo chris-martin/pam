@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, RecordWildCards #-}
+{-# LANGUAGE CPP, GeneralizedNewtypeDeriving, RecordWildCards #-}
 
 module System.Posix.PAM.Bindings.Types
   ( PamHandle (..)
@@ -24,7 +24,7 @@ You must use a different 'PamHandle' for each transaction.
 
 -}
 
-newtype PamHandle = PamHandle (Ptr Void)
+newtype PamHandle = PamHandle (Ptr Void) deriving Storable
 
 {- |
 

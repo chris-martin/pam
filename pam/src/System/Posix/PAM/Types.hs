@@ -48,10 +48,9 @@ type PamConv = Ptr () -> [PamMessage] -> IO [PamResponse]
 
 data PamHandle =
   PamHandle
-    { cPamHandle :: Ptr ()
+    { cPamHandle :: C.PamHandle
     , cPamCallback :: FunPtr C.ConvFunc
     }
-  deriving (Show, Eq)
 
 data AuthRequest =
   AuthRequest

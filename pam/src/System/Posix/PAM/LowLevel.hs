@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module System.Posix.PAM.LowLevel where
 
 import System.Posix.PAM.Types
@@ -12,8 +14,8 @@ import Data.Semigroup ((<>))
 import Data.Traversable (traverse)
 import Foreign.C (CInt, newCString, peekCString)
 import Foreign.Marshal.Array (peekArray, mallocArray, pokeArray)
-import Foreign.Marshal.Alloc (malloc, free)
-import Foreign.Ptr (Ptr, castPtr, nullPtr, freeHaskellFunPtr)
+import Foreign.Marshal.Alloc (calloc, malloc, free)
+import Foreign.Ptr (Ptr, castPtr, freeHaskellFunPtr)
 import Foreign.Storable (peek, poke)
 import Prelude (Int, String, fromIntegral, error)
 import System.IO (IO)
@@ -80,7 +82,6 @@ cConv customConv num mesArrPtr respArrPtr appData =
             -- return PAM_SUCCESS
             pure 0
 
-
 pamStart :: String -> String -> (PamConv, Ptr ()) -> IO (PamHandle, PamRetCode)
 pamStart serviceName userName (pamConv, appData) = do
     cServiceName <- newCString serviceName
@@ -94,12 +95,9 @@ pamStart serviceName userName (pamConv, appData) = do
     convPtr <- malloc
     poke convPtr conv
 
-    pamhPtr <- malloc
-    poke pamhPtr nullPtr
-
+    pamhPtr :: Ptr C.PamHandle <- calloc
     r1 <- C.pam_start cServiceName cUserName convPtr pamhPtr
-
-    cPamHandle_ <- peek pamhPtr
+    cPamHandle_ :: C.PamHandle <- peek pamhPtr
 
     let retCode = case r1 of
             0 -> PamSuccess
@@ -108,7 +106,6 @@ pamStart serviceName userName (pamConv, appData) = do
     free cServiceName
     free cUserName
     free convPtr
-
     free pamhPtr
 
     pure (PamHandle cPamHandle_ pamConvPtr, retCode)
