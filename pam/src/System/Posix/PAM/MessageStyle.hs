@@ -10,10 +10,11 @@ module System.Posix.PAM.MessageStyle
 
   ) where
 
-import qualified System.Posix.PAM.Bindings.MessageStyle as C
-
 -- base
 import Foreign.C.Types (CInt)
+
+-- pam-bindings
+import qualified System.Posix.PAM.Bindings.MessageStyle as C
 
 data MessageStyle
   = PromptEchoOff

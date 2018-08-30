@@ -40,7 +40,7 @@ with it.
 -}
 
 foreign import ccall "security/pam_appl.h pam_end" pam_end
-  :: Handle -> CInt -> IO ReturnValue
+  :: Handle -> ReturnValue -> IO ReturnValue
 
 {- |
 

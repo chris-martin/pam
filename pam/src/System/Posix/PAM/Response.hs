@@ -3,10 +3,11 @@ module System.Posix.PAM.Response
   , to_C
   ) where
 
-import qualified System.Posix.PAM.Bindings.Response as C
-
 -- base
 import Foreign.C (newCString)
+
+-- pam-bindings
+import qualified System.Posix.PAM.Bindings.Response as C
 
 {- | Used to return the user's response to the PAM library.
 

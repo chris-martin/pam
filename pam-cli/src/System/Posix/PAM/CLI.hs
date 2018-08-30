@@ -55,13 +55,16 @@ promptForPassword =
                   (Haskeline.getPassword Nothing "Password: ")
     return (T.pack <$> result)
 
-renderError :: (Int, Maybe Text) -> LT.Text
+renderError :: (PAM.ErrorCode, Maybe Text) -> LT.Text
 renderError (code, maybeMessage) =
-  TB.toLazyText $
-      case maybeMessage of
-          Nothing -> TB.fromString "Error code "
-                  <> TB.fromString (showInt code "")
-          Just m  -> TB.fromText m
-                  <> TB.fromString " (error code "
-                  <> TB.fromString (showInt code "")
-                  <> TB.fromString ")"
+  let
+      i = TB.fromString (showInt (PAM.errorCodeInt code) "")
+  in
+      TB.toLazyText $
+          case maybeMessage of
+              Nothing -> TB.fromString "Error code "
+                      <> i
+              Just m  -> TB.fromText m
+                      <> TB.fromString " (error code "
+                      <> i
+                      <> TB.fromString ")"

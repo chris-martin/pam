@@ -4,11 +4,16 @@ module System.Posix.PAM.LowLevel where
 
 import System.Posix.PAM.Types
 
-import qualified System.Posix.PAM.Bindings as C
+
 import qualified System.Posix.PAM.MessageStyle as MessageStyle
 import qualified System.Posix.PAM.Response as Response
 import System.Posix.PAM.Response (Response)
+import System.Posix.PAM.Result (Result (..))
+import qualified System.Posix.PAM.Result as Result
+import System.Posix.PAM.ErrorCode (ErrorCode (..))
+import qualified System.Posix.PAM.ErrorCode as ErrorCode
 
+-- base
 import Data.Semigroup ((<>))
 import Data.Traversable (traverse)
 import Foreign.C (newCString, peekCString)
@@ -17,13 +22,8 @@ import Foreign.Marshal.Alloc (calloc, malloc, free)
 import Foreign.Ptr (Ptr, castPtr, freeHaskellFunPtr)
 import Foreign.Storable (peek, poke)
 
-retCodeFromC :: C.ReturnValue -> PamRetCode
-retCodeFromC r | r == C.success  =  PamSuccess
-retCodeFromC (C.ReturnValue x)   =  PamRetCode (fromIntegral x)
-
-retCodeToC :: PamRetCode -> C.ReturnValue
-retCodeToC PamSuccess      =  C.success
-retCodeToC (PamRetCode x)  =  C.ReturnValue (fromIntegral x)
+-- pam-bindings
+import qualified System.Posix.PAM.Bindings as C
 
 messageFromC :: C.PamMessage -> IO PamMessage
 messageFromC cmes =
@@ -66,7 +66,7 @@ cConv customConv num mesArrPtr respArrPtr appData =
             -- return PAM_SUCCESS
             pure 0
 
-pamStart :: String -> String -> (PamConv, Ptr ()) -> IO (PamHandle, PamRetCode)
+pamStart :: String -> String -> (PamConv, Ptr ()) -> IO (PamHandle, Result ())
 pamStart serviceName userName (pamConv, appData) = do
     cServiceName <- newCString serviceName
     cUserName <- newCString userName
@@ -88,34 +88,34 @@ pamStart serviceName userName (pamConv, appData) = do
     free convPtr
     free pamhPtr
 
-    pure (PamHandle cPamHandle_ pamConvPtr, retCodeFromC r1)
+    pure (PamHandle cPamHandle_ pamConvPtr, Result.from_C r1)
 
-pamEnd :: PamHandle -> PamRetCode -> IO PamRetCode
-pamEnd pamHandle inRetCode = do
-    let cRetCode = case inRetCode of
-            PamSuccess -> 0
-            PamRetCode a -> fromIntegral a
-    r <- C.pam_end (cPamHandle pamHandle) cRetCode
-    freeHaskellFunPtr $ cPamCallback pamHandle
+pamEnd :: PamHandle -> Result () -> IO (Result ())
+pamEnd pamHandle inRetCode =
+  do
+    r <- C.pam_end (cPamHandle pamHandle) (Result.to_C inRetCode)
+    freeHaskellFunPtr (cPamCallback pamHandle)
 
-    pure $ retCodeFromC r
+    return (Result.from_C r)
 
-pamAuthenticate :: PamHandle -> PamFlag -> IO PamRetCode
-pamAuthenticate pamHandle (PamFlag flag) = do
+pamAuthenticate :: PamHandle -> PamFlag -> IO (Result ())
+pamAuthenticate pamHandle (PamFlag flag) =
+  do
     let cFlag = fromIntegral flag
     r <- C.pam_authenticate (cPamHandle pamHandle) cFlag
-    pure $ retCodeFromC r
+    return (Result.from_C r)
 
-pamAcctMgmt :: PamHandle -> PamFlag -> IO PamRetCode
-pamAcctMgmt pamHandle (PamFlag flag) = do
+pamAcctMgmt :: PamHandle -> PamFlag -> IO (Result ())
+pamAcctMgmt pamHandle (PamFlag flag) =
+  do
     let cFlag = fromIntegral flag
     r <- C.pam_acct_mgmt (cPamHandle pamHandle) cFlag
-    pure $ retCodeFromC r
+    return (Result.from_C r)
 
-pamErrorString :: PamHandle -> Int -> IO String
+pamErrorString :: PamHandle -> ErrorCode -> IO String
 pamErrorString pamHandle errorCode =
   do
     cStr <- C.pam_strerror
               (cPamHandle pamHandle)
-              (C.ReturnValue (fromIntegral errorCode))
+              (ErrorCode.to_C errorCode)
     peekCString cStr

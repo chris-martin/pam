@@ -9,29 +9,37 @@ http://www.linux-pam.org/Linux-PAM-html/Linux-PAM_ADG.html
 {-# LANGUAGE NamedFieldPuns, OverloadedStrings #-}
 
 module System.Posix.PAM
-  ( authenticate
+  (
+  -- * Authenticate
+    authenticate
   , AuthRequest (..)
+
+  -- * Errors
+  , ErrorCode
+  , errorCodeInt
+
   ) where
 
+import System.Posix.PAM.ErrorCode
+import qualified System.Posix.PAM.ErrorCode as ErrorCode
 import System.Posix.PAM.LowLevel
 import System.Posix.PAM.Response
+import System.Posix.PAM.Result
 import System.Posix.PAM.Types
 
-import Control.Applicative (pure)
-import Data.Either (Either (..))
-import Data.Function (($))
-import Data.Functor (fmap)
-import Data.Maybe (Maybe (..))
-import Data.Text (Text)
+-- base
 import Foreign.Ptr
-import Prelude (Int, String)
-import System.IO (IO)
 
+-- text
+import Data.Text (Text)
 import qualified Data.Text as Text
+
+errorCodeInt :: ErrorCode -> Int
+errorCodeInt = ErrorCode.to_Int
 
 authenticate
   :: AuthRequest
-  -> IO (Either (Int, Maybe Text) ())
+  -> IO (Either (ErrorCode, Maybe Text) ())
 authenticate AuthRequest{ authRequestService
                         , authRequestUsername
                         , authRequestPassword
@@ -45,15 +53,15 @@ authenticate AuthRequest{ authRequestService
         (Text.unpack authRequestUsername)
         (custConv (Text.unpack authRequestPassword), nullPtr)
     case r1 of
-        PamRetCode code -> pure $ Left (code, Nothing)
-        PamSuccess -> do
+        Failure code -> pure $ Left (code, Nothing)
+        Success () -> do
             r2 <- pamAuthenticate pamH (PamFlag 0)
             case r2 of
-                PamRetCode code -> do
+                Failure code -> do
                     errorMessage <- pamErrorString pamH code
                     pure $ Left (code, Just $ Text.pack errorMessage)
-                PamSuccess -> do
+                Success () -> do
                     r3 <- pamEnd pamH r2
                     case r3 of
-                        PamSuccess -> pure $ Right ()
-                        PamRetCode code -> pure $ Left (code, Nothing)
+                        Failure code -> pure $ Left (code, Nothing)
+                        Success () -> pure $ Right ()
