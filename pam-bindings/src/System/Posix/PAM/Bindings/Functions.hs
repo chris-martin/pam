@@ -8,8 +8,8 @@ module System.Posix.PAM.Bindings.Functions
   , pam_strerror
   ) where
 
-import System.Posix.PAM.Bindings.Handle
-import System.Posix.PAM.Bindings.Types
+import System.Posix.PAM.Bindings.Conv (Conv (..), ConvFunc)
+import System.Posix.PAM.Bindings.Handle (Handle (..))
 import System.Posix.PAM.Bindings.ReturnValue (ReturnValue (..))
 
 import Foreign.C (CInt (..), CString)
@@ -28,7 +28,7 @@ Make sure you call 'pam_end' once the transaction is over.
 -}
 
 foreign import ccall "security/pam_appl.h pam_start" pam_start
-  :: CString -> CString -> Ptr PamConv -> Ptr Handle -> IO ReturnValue
+  :: CString -> CString -> Ptr Conv -> Ptr Handle -> IO ReturnValue
 
 {- |
 

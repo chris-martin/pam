@@ -34,6 +34,7 @@ library
 
   exposed-modules:
       System.Posix.PAM.Bindings
+      System.Posix.PAM.Bindings.Conv
       System.Posix.PAM.Bindings.Functions
       System.Posix.PAM.Bindings.Handle
       System.Posix.PAM.Bindings.ItemType

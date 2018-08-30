@@ -8,7 +8,7 @@ module System.Posix.PAM.Bindings
   -- * Conversation protocol
   , PamMessage (..)
   , Response (..)
-  , PamConv (..)
+  , Conv (..)
   , ConvFunc
   , mkconvFunc
 
@@ -30,6 +30,7 @@ module System.Posix.PAM.Bindings
 
   ) where
 
+import System.Posix.PAM.Bindings.Conv
 import System.Posix.PAM.Bindings.Functions
 import System.Posix.PAM.Bindings.Handle
 import System.Posix.PAM.Bindings.Response (Response (..))

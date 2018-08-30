@@ -2,8 +2,6 @@
 
 module System.Posix.PAM.Bindings.Types
   ( PamMessage (..)
-  , ConvFunc
-  , PamConv (..)
   ) where
 
 import System.Posix.PAM.Bindings.Handle (Handle (..))
@@ -42,31 +40,3 @@ instance Storable PamMessage where
   poke ptr PamMessage{..} = do
     #{poke struct pam_message, msg_style} ptr msg_style
     #{poke struct pam_message, msg}       ptr msg
-
-type ConvFunc = CInt -> Ptr (Ptr ()) -> Ptr (Ptr ()) -> Ptr () -> IO CInt
-
-{- |
-
-The actual conversation structure itself.
-
--}
-
-data PamConv = PamConv
-  { conv :: FunPtr ConvFunc
-  , appdata_ptr :: Ptr ()
-  }
-  deriving (Eq, Show)
-
-instance Storable PamConv where
-
-  sizeOf    _ = #size      struct pam_conv
-  alignment _ = #alignment struct pam_conv
-
-  peek ptr = do
-    conv        <- #{peek struct pam_conv, conv}        ptr
-    appdata_ptr <- #{peek struct pam_conv, appdata_ptr} ptr
-    return PamConv{..}
-
-  poke ptr PamConv{..} = do
-    #{poke struct pam_conv, conv}        ptr conv
-    #{poke struct pam_conv, appdata_ptr} ptr appdata_ptr

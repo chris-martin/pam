@@ -74,7 +74,7 @@ pamStart serviceName userName (pamConv, appData) = do
     -- create FunPtr pointer to function and embedd PamConv function into cConv
     pamConvPtr <- C.mkconvFunc $ cConv pamConv
 
-    let conv = C.PamConv pamConvPtr appData
+    let conv = C.Conv pamConvPtr appData
 
     convPtr <- malloc
     poke convPtr conv
